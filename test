@@ -1,8 +1,9 @@
-def entry_point2(f_nm_temp):
+import asyncio
+
+async def async_entry_point(f_nm_temp):
     zzz = []
 
-    # Define target functions for threading
-    def fun1():
+    async def async_fun1():
         nonlocal zzz
         print("in func1")
         result_az = get_ans("temp_img_store/crop_img1.jpg")
@@ -11,37 +12,24 @@ def entry_point2(f_nm_temp):
         print("func1 gpt done")
 
         f_ans = comp_validation_1(result_gpt, result_az)
-        fun_1_list = []
         for temp in f_ans:
             print(temp)
             zzz.append(str(temp))
-            fun_1_list.append(str(temp))
 
-    def fun2():
+    async def async_fun2():
         nonlocal zzz
         print("in func2")
         result_az2 = get_ans("temp_img_store/crop_img2.jpg")
         print(" func2 az done")
         result_gpt2 = gpt_format(result_az2, prompt2)
         print("func2 gpt done")
-        fun_2_list = []
+
         f_ans2 = comp_validation_2(result_gpt2)
         for temp in f_ans2:
             print(str(temp))
             zzz.append(str(temp))
 
-    # Create threads for each function
-    thread_one = threading.Thread(target=fun1)
-    thread_two = threading.Thread(target=fun2)
-
-    # Start both threads
-    thread_one.start()
-    thread_two.start()
-
-    # Wait for both threads to finish
-    thread_two.join()
-    thread_one.join()
-
+    await asyncio.gather(async_fun1(), async_fun2())
     print(str(zzz))
 
-entry_point2("form2_test.JPG")
+asyncio.run(async_entry_point("form2_test.JPG"))
