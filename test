@@ -1,35 +1,65 @@
-import asyncio
+import cv2
+import numpy as np
 
-async def async_entry_point(f_nm_temp):
-    zzz = []
+def preprocess_image(image_path):
+    # Read the image
+    image = cv2.imread(image_path)
+    
+    # Convert to grayscale
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    
+    # Apply thresholding
+    _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    
+    return thresh
 
-    async def async_fun1():
-        nonlocal zzz
-        print("in func1")
-        result_az = get_ans("temp_img_store/crop_img1.jpg")
-        print("func1 az done")
-        result_gpt = gpt_format(result_az, prompt1)
-        print("func1 gpt done")
+def detect_blobs(thresh):
+    # Set up the SimpleBlobDetector parameters
+    params = cv2.SimpleBlobDetector_Params()
+    
+    # Change thresholds
+    params.minThreshold = 10
+    params.maxThreshold = 200
+    
+    # Filter by Area.
+    params.filterByArea = True
+    params.minArea = 100  # Adjust depending on the size of your blobs
+    
+    # Filter by Circularity
+    params.filterByCircularity = True
+    params.minCircularity = 0.8
+    
+    # Filter by Convexity
+    params.filterByConvexity = False
+    params.minConvexity = 0.2
+    
+    # Filter by Inertia
+    params.filterByInertia = False
+    params.minInertiaRatio = 0.01
+    
+    # Create a detector with the parameters
+    detector = cv2.SimpleBlobDetector_create(params)
+    
+    # Detect blobs
+    keypoints = detector.detect(thresh)
+    
+    # Draw detected blobs as red circles
+    im_with_keypoints = cv2.drawKeypoints(thresh, keypoints, np.array([]), (0, 0, 255),
+                                           cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    
+    return im_with_keypoints
 
-        f_ans = comp_validation_1(result_gpt, result_az)
-        for temp in f_ans:
-            print(temp)
-            zzz.append(str(temp))
+# Path to your image
+image_path = 'form_with_checkmarks.jpg'
 
-    async def async_fun2():
-        nonlocal zzz
-        print("in func2")
-        result_az2 = get_ans("temp_img_store/crop_img2.jpg")
-        print(" func2 az done")
-        result_gpt2 = gpt_format(result_az2, prompt2)
-        print("func2 gpt done")
+# Preprocess the image
+thresh = preprocess_image(image_path)
 
-        f_ans2 = comp_validation_2(result_gpt2)
-        for temp in f_ans2:
-            print(str(temp))
-            zzz.append(str(temp))
+# Detect blobs
+blob_image = detect_blobs(thresh)
 
-    await asyncio.gather(async_fun1(), async_fun2())
-    print(str(zzz))
-
-asyncio.run(async_entry_point("form2_test.JPG"))
+# Display the original image and the blob-detected image
+cv2.imshow('Original Image', cv2.imread(image_path))
+cv2.imshow('Blob Detection', blob_image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
