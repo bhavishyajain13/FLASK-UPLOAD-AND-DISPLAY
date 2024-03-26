@@ -1,4 +1,5 @@
-def detect_rectangular_blobs(thresh):
+
+def detect_square_blobs(thresh):
     # Find contours
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
@@ -6,10 +7,13 @@ def detect_rectangular_blobs(thresh):
     min_contour_area = 100  # Adjust as needed
     large_contours = [cnt for cnt in contours if cv2.contourArea(cnt) > min_contour_area]
     
-    # Draw contours as rectangles
+    # Draw contours as rectangles (squares)
     blob_image = thresh.copy()
     for contour in large_contours:
         x, y, w, h = cv2.boundingRect(contour)
-        cv2.rectangle(blob_image, (x, y), (x + w, y + h), (0, 0, 255), 2)
+        aspect_ratio = w / float(h)
+        if 0.9 <= aspect_ratio <= 1.1:  # Check if the aspect ratio is close to 1 (square)
+            cv2.rectangle(blob_image, (x, y), (x + w, y + h), (0, 0, 255), 2)
     
     return blob_image
+
