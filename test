@@ -35,12 +35,18 @@ def detect_squares(edges):
 img_pt = "your_image_path.jpg"
 edges = preprocess_image(img_pt)
 
+# Store the preprocessed image in a variable
+preprocessed_image = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
+
 # Detect squares
 square_image = detect_squares(edges)
 
-# Display the original image and the square-detected image
-cv2.imshow('Original Image', cv2.imread(img_pt))
+# Load the original image
+original_image = cv2.imread(img_pt)
+
+# Display the original image, preprocessed image, and the image with detected squares
+cv2.imshow('Original Image', original_image)
+cv2.imshow('Preprocessed Image', preprocessed_image)
 cv2.imshow('Square Detection', square_image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-
