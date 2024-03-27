@@ -1,18 +1,16 @@
-def detect_squares(thresh):
+def detect_squares(edges):
     # Find contours
-    contours, _ = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     
     # Filter contours to find squares
     squares = []
     for contour in contours:
-        perimeter = cv2.arcLength(contour, True)
-        approx = cv2.approxPolyDP(contour, 0.02 * perimeter, True)
-        if len(approx) == 4 and cv2.contourArea(contour) > 1000:  # Square has 4 corners and a certain area
+        approx = cv2.approxPolyDP(contour, 0.02 * cv2.arcLength(contour, True), True)
+        if len(approx) == 4 and cv2.contourArea(contour) > 1000 and cv2.isContourConvex(approx):
             squares.append(approx)
     
     # Draw squares
-    square_image = np.zeros_like(thresh)
+    square_image = np.zeros_like(edges)
     cv2.drawContours(square_image, squares, -1, (255, 255, 255), thickness=cv2.FILLED)
     
     return square_image
-
