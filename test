@@ -78,24 +78,6 @@ def detect_blobs(thresh):
     
     return im_with_keypoints
 
-def detect_squares(edges):
-    # Find contours
-    contours, _ = cv2.findContours(edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-    
-    # Filter contours to find squares
-    squares = []
-    sq_cord=[]
-    for contour in contours:
-        approx = cv2.approxPolyDP(contour, 0.02 * cv2.arcLength(contour, True), True)
-        if len(approx) == 4 and cv2.contourArea(contour) > 20 and cv2.isContourConvex(approx):
-            squares.append(approx)
-            sq_cord.append([tuple(coord[0])for coord in approx])
-    # Draw squares
-    square_image = np.zeros_like(edges)
-    cv2.drawContours(square_image, squares, -1, (255, 255, 255), thickness=cv2.FILLED)
-    # print(squares)
-    return square_image,sq_cord
-
 
 thresh = preprocess_image(img_pt)
 
