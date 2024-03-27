@@ -5,10 +5,13 @@ def detect_squares(thresh):
     # Filter contours to find squares
     squares = []
     for contour in contours:
-        perimeter = cv2.arcLength(contour, True)
-        approx = cv2.approxPolyDP(contour, 0.04 * perimeter, True)
-        if len(approx) == 4:  # Checking if the contour is a square
-            squares.append(contour)
+        # Approximate the contour to simplify it
+        epsilon = 0.03 * cv2.arcLength(contour, True)
+        approx = cv2.approxPolyDP(contour, epsilon, True)
+
+        # Check if the contour has four vertices and is convex
+        if len(approx) == 4 and cv2.isContourConvex(approx):
+            squares.append(approx)
 
     # Draw squares on a blank image
     square_image = np.zeros_like(thresh)
