@@ -1,30 +1,18 @@
 def detect_squares(thresh):
-    # Find edges using Canny edge detection
-    edges = cv2.Canny(thresh, 50, 150, apertureSize=3)
+    # Find contours
+    contours, _ = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     
-    # Find lines using Hough Transform
-    lines = cv2.HoughLines(edges, 1, np.pi / 180, 100)
-    
-    # Filter lines to find squares
+    # Filter contours to find squares
     squares = []
-    if lines is not None:
-        for line in lines:
-            rho, theta = line[0]
-            a = np.cos(theta)
-            b = np.sin(theta)
-            x0 = a * rho
-            y0 = b * rho
-            x1 = int(x0 + 1000 * (-b))
-            y1 = int(y0 + 1000 * (a))
-            x2 = int(x0 - 1000 * (-b))
-            y2 = int(y0 - 1000 * (a))
-            angle = np.abs(np.arctan2(y2 - y1, x2 - x1) * 180 / np.pi)
-            if 75 < angle < 105:  # Filter lines to approximate squares
-                squares.append((x1, y1, x2, y2))
+    for contour in contours:
+        perimeter = cv2.arcLength(contour, True)
+        approx = cv2.approxPolyDP(contour, 0.02 * perimeter, True)
+        if len(approx) == 4 and cv2.contourArea(contour) > 1000:  # Square has 4 corners and a certain area
+            squares.append(approx)
     
     # Draw squares
     square_image = np.zeros_like(thresh)
-    for square in squares:
-        cv2.line(square_image, (square[0], square[1]), (square[2], square[3]), (255, 255, 255), 2)
+    cv2.drawContours(square_image, squares, -1, (255, 255, 255), thickness=cv2.FILLED)
     
     return square_image
+
