@@ -1,38 +1,74 @@
-import cv2
-import numpy as np
+js
+function toggleDiv(divNumber) {
+  var divs = document.querySelectorAll('.toggle-div');
+  divs.forEach(function(div) {
+    div.style.display = 'none';
+  });
 
-def detect_square_boxes(image_path):
-    # Load the image
-    image = cv2.imread(image_path)
-    
-    # Convert the image to grayscale
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    
-    # Apply Gaussian blur to reduce noise
-    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-    
-    # Detect edges using Canny edge detector
-    edges = cv2.Canny(blurred, 50, 150)
-    
-    # Find contours in the edged image
-    contours, _ = cv2.findContours(edges.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    
-    # Loop over the contours
-    for contour in contours:
-        # Approximate the contour
-        peri = cv2.arcLength(contour, True)
-        approx = cv2.approxPolyDP(contour, 0.02 * peri, True)
-        
-        # If the contour has four vertices, it's likely a square
-        if len(approx) == 4:
-            # Draw the contour
-            cv2.drawContours(image, [approx], -1, (0, 255, 0), 2)
-    
-    # Display the detected squares
-    cv2.imshow("Detected squares", image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+  var buttons = document.querySelectorAll('button');
+  buttons.forEach(function(button) {
+    button.classList.remove('active');
+  });
 
-# Provide the path to your image
-image_path = "your_image_path.jpg"
-detect_square_boxes(image_path)
+  var selectedDiv = document.getElementById('ot_text' + divNumber);
+  selectedDiv.style.display = 'block';
+
+  var selectedButton = document.getElementById('button' + divNumber);
+  selectedButton.classList.add('active');
+}
+
+
+HTML:
+
+<div class="button-container">
+  <button id="button1" class="first-button" onclick="toggleDiv(1)">Button 1</button>
+  <button id="button2" class="second-button" onclick="toggleDiv(2)">Button 2</button>
+  <button id="button3" class="third-button" onclick="toggleDiv(3)">Button 3</button>
+</div>
+
+<div id="ot_text1" class="toggle-div">Content 1</div>
+<div id="ot_text2" class="toggle-div">Content 2</div>
+<div id="ot_text3" class="toggle-div">Content 3</div>
+
+
+CSS:
+
+css
+Copy code
+.button-container {
+  display: inline-block;
+}
+
+button {
+  border: none;
+  border-radius: 100px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.first-button {
+  border: 2px solid #000;
+  border-right: none;
+}
+
+.second-button {
+  border-top: 2px solid #000;
+  border-bottom: 2px solid #000;
+}
+
+.third-button {
+  border: 2px solid #000;
+  border-left: none;
+}
+
+.toggle-div {
+  display: none;
+  padding: 20px;
+  border-radius: 100px;
+}
+
+.active {
+  background-color: #000;
+  color: #fff;
+}
