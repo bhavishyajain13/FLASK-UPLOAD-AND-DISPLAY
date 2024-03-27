@@ -1,74 +1,92 @@
-js
-function toggleDiv(divNumber) {
-  var divs = document.querySelectorAll('.toggle-div');
-  divs.forEach(function(div) {
-    div.style.display = 'none';
-  });
+import cv2
+import numpy as np
 
-  var buttons = document.querySelectorAll('button');
-  buttons.forEach(function(button) {
-    button.classList.remove('active');
-  });
+def preprocess_image(image_path):
+    # Read the image
+    image = cv2.imread(image_path)
+    
+    # Convert to grayscale
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    
+    # Apply thresholding
+    _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    
+    return thresh
 
-  var selectedDiv = document.getElementById('ot_text' + divNumber);
-  selectedDiv.style.display = 'block';
+def detect_blobs(thresh):
+    # Set up the SimpleBlobDetector parameters
+    params = cv2.SimpleBlobDetector_Params()
+    
+    # Change thresholds
+    params.minThreshold = 10
+    params.maxThreshold = 200
+    
+    # Filter by Area.
+    params.filterByArea = True
+    params.minArea = 130  # Adjust depending on the size of your blobs
+    
+    # Filter by Circularity
+    params.filterByCircularity = True
+    params.minCircularity = 0.6
+    
+    # Filter by Convexity
+    params.filterByConvexity = False
+    params.minConvexity = 0.2
+    
+    # Filter by Inertia
+    params.filterByInertia = False
+    params.minInertiaRatio = 0.01
+    
+    # Create a detector with the parameters
+    detector = cv2.SimpleBlobDetector_create(params)
+    
+    # Detect blobs
+    keypoints = detector.detect(thresh)
 
-  var selectedButton = document.getElementById('button' + divNumber);
-  selectedButton.classList.add('active');
-}
+    keypoints_list= [(kp.pt[0], kp.pt[1], kp.size) for kp in keypoints]
+    # keypoints_list.sort(key=lambda x: x[2], reverse= True)
+    # keypoints_list= keypoints_list[:7]
+
+    # keypoints= [cv2.KeyPoint(x=kp[0],y=kp[1], size=kp[2]) for kp in keypoints_list]
+    keypoints_list.sort(key=lambda x: x[0])
+    print(keypoints_list)
+    filter_keypoints= []
+    prev_keypoint= None
+    for kp in keypoints_list:
+        if prev_keypoint is None or abs(kp[0] - prev_keypoint[0])>40:
+            filter_keypoints.append(kp)
+            prev_keypoint=kp
+        # elif kp[2] > prev_keypoint[2]:
+        #     filter_keypoints[-1]= kp
 
 
-HTML:
-
-<div class="button-container">
-  <button id="button1" class="first-button" onclick="toggleDiv(1)">Button 1</button>
-  <button id="button2" class="second-button" onclick="toggleDiv(2)">Button 2</button>
-  <button id="button3" class="third-button" onclick="toggleDiv(3)">Button 3</button>
-</div>
-
-<div id="ot_text1" class="toggle-div">Content 1</div>
-<div id="ot_text2" class="toggle-div">Content 2</div>
-<div id="ot_text3" class="toggle-div">Content 3</div>
+    
+    print(filter_keypoints)
+    # filter_keypoints= filter_keypoints[:7]
 
 
-CSS:
+    keypoints= [cv2.KeyPoint(x=kp[0],y=kp[1], size=kp[2]) for kp in filter_keypoints]
+    
+    for k in keypoints:
+        print(k.size)
+    # Draw detected blobs as red circles
+    
 
-css
-Copy code
-.button-container {
-  display: inline-block;
-}
 
-button {
-  border: none;
-  border-radius: 100px;
-  padding: 10px 20px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
+    im_with_keypoints = cv2.drawKeypoints(thresh, keypoints, np.array([]), (0, 0, 255),
+                                           cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    
+    return im_with_keypoints
 
-.first-button {
-  border: 2px solid #000;
-  border-right: none;
-}
+thresh = preprocess_image(img_pt)
 
-.second-button {
-  border-top: 2px solid #000;
-  border-bottom: 2px solid #000;
-}
+# Detect blobs
+blob_image = detect_blobs(thresh)
 
-.third-button {
-  border: 2px solid #000;
-  border-left: none;
-}
+# Display the original image and the blob-detected image
 
-.toggle-div {
-  display: none;
-  padding: 20px;
-  border-radius: 100px;
-}
-
-.active {
-  background-color: #000;
-  color: #fff;
-}
+cv2.imshow('Original Image', cv2.imread(img_pt))
+# im22= cv2.resize(blob_image)
+cv2.imshow('Blob Detection', blob_image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
