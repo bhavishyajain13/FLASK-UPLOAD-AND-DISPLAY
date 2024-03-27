@@ -13,80 +13,34 @@ def preprocess_image(image_path):
     
     return thresh
 
-def detect_blobs(thresh):
-    # Set up the SimpleBlobDetector parameters
-    params = cv2.SimpleBlobDetector_Params()
+def detect_squares(thresh):
+    # Find contours
+    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
-    # Change thresholds
-    params.minThreshold = 10
-    params.maxThreshold = 200
+    # Filter contours to find squares
+    squares = []
+    for contour in contours:
+        perimeter = cv2.arcLength(contour, True)
+        approx = cv2.approxPolyDP(contour, 0.04 * perimeter, True)
+        if len(approx) == 4:  # Square has 4 corners
+            squares.append(contour)
     
-    # Filter by Area.
-    params.filterByArea = True
-    params.minArea = 130  # Adjust depending on the size of your blobs
+    # Draw squares
+    square_image = np.zeros_like(thresh)
+    cv2.drawContours(square_image, squares, -1, (255, 255, 255), thickness=cv2.FILLED)
     
-    # Filter by Circularity
-    params.filterByCircularity = True
-    params.minCircularity = 0.6
-    
-    # Filter by Convexity
-    params.filterByConvexity = False
-    params.minConvexity = 0.2
-    
-    # Filter by Inertia
-    params.filterByInertia = False
-    params.minInertiaRatio = 0.01
-    
-    # Create a detector with the parameters
-    detector = cv2.SimpleBlobDetector_create(params)
-    
-    # Detect blobs
-    keypoints = detector.detect(thresh)
+    return square_image
 
-    keypoints_list= [(kp.pt[0], kp.pt[1], kp.size) for kp in keypoints]
-    # keypoints_list.sort(key=lambda x: x[2], reverse= True)
-    # keypoints_list= keypoints_list[:7]
-
-    # keypoints= [cv2.KeyPoint(x=kp[0],y=kp[1], size=kp[2]) for kp in keypoints_list]
-    keypoints_list.sort(key=lambda x: x[0])
-    print(keypoints_list)
-    filter_keypoints= []
-    prev_keypoint= None
-    for kp in keypoints_list:
-        if prev_keypoint is None or abs(kp[0] - prev_keypoint[0])>40:
-            filter_keypoints.append(kp)
-            prev_keypoint=kp
-        # elif kp[2] > prev_keypoint[2]:
-        #     filter_keypoints[-1]= kp
-
-
-    
-    print(filter_keypoints)
-    # filter_keypoints= filter_keypoints[:7]
-
-
-    keypoints= [cv2.KeyPoint(x=kp[0],y=kp[1], size=kp[2]) for kp in filter_keypoints]
-    
-    for k in keypoints:
-        print(k.size)
-    # Draw detected blobs as red circles
-    
-
-
-    im_with_keypoints = cv2.drawKeypoints(thresh, keypoints, np.array([]), (0, 0, 255),
-                                           cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-    
-    return im_with_keypoints
-
+# Preprocess image
+img_pt = "your_image_path.jpg"
 thresh = preprocess_image(img_pt)
 
-# Detect blobs
-blob_image = detect_blobs(thresh)
+# Detect squares
+square_image = detect_squares(thresh)
 
-# Display the original image and the blob-detected image
-
+# Display the original image and the square-detected image
 cv2.imshow('Original Image', cv2.imread(img_pt))
-# im22= cv2.resize(blob_image)
-cv2.imshow('Blob Detection', blob_image)
+cv2.imshow('Square Detection', square_image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
+
