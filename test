@@ -5,14 +5,21 @@ from skimage.color import label2rgb
 from skimage.measure import regionprops
 import numpy as np
 
-# Load the image
+# Read the image
 img = cv2.imread('temp_img_store/SIGN_CHECK.jpg', 0)
 img = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)[1]
 
-# Connected component analysis
+# Connected component analysis by scikit-learn framework
 blobs = img > img.mean()
 blobs_labels = measure.label(blobs, background=1)
 image_label_overlay = label2rgb(blobs_labels, image=img)
+
+# Draw image
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.imshow(image_label_overlay)
+ax.set_axis_off()
+plt.tight_layout()
+plt.show()
 
 # Initialize variables
 the_biggest_component = 0
@@ -25,47 +32,59 @@ for region in regionprops(blobs_labels):
     if region.area > 10:
         total_area += region.area
         counter += 1
-
     if region.area >= 250:
         if region.area > the_biggest_component:
             the_biggest_component = region.area
 
-# Calculate average
-average = total_area / counter
-print("the_biggest_component:", the_biggest_component)
-print("average:", average)
+# Check if any regions were detected before trying to find the biggest one
+if the_biggest_component != 0:
+    print("the_biggest_component: " + str(the_biggest_component))
+else:
+    print("No regions detected.")
 
-# Remove outliers
+# Calculate the average of the blob regions if there are regions
+if counter != 0:
+    average = (total_area / counter)
+    print("average: " + str(average))
+else:
+    print("No regions detected.")
+
+# Parameters to remove outliers
 constant_parameter_1 = 60
 constant_parameter_2 = 200
 constant_parameter_3 = 200
 constant_parameter_4 = 900
+
+# Experimental-based ratio calculation
 a4_small_size_outlier_constant = ((average / constant_parameter_1) * constant_parameter_2) + constant_parameter_3
-print("a4_small_size_outlier_constant:", a4_small_size_outlier_constant)
+print("a4_small_size_outlier_constant: " + str(a4_small_size_outlier_constant))
+
+# Experimental-based ratio calculation
 a4_big_size_outlier_constant = a4_small_size_outlier_constant * constant_parameter_4
-print("a4_big_size_outlier_constant:", a4_big_size_outlier_constant)
+print("a4_big_size_outlier_constant: " + str(a4_big_size_outlier_constant))
 
+# Remove the connected pixels that are smaller than threshold a4_small_size_outlier_constant
 pre_version = morphology.remove_small_objects(blobs_labels, a4_small_size_outlier_constant)
-component_sizes = np.bincount(pre_version.ravel())
-too_small = component_sizes > a4_big_size_outlier_constant
-too_small_mask = too_small[pre_version]
-pre_version[too_small_mask] = 0
 
-# Find largest component
-largest_component_label = np.argmax(component_sizes[1:]) + 1
-largest_component_props = regionprops(pre_version)[largest_component_label - 1]
+# Check if any components were detected before trying to find the argmax
+if pre_version.size == 0:
+    print("No components detected.")
+else:
+    # Remove the connected pixels that are bigger than threshold a4_big_size_outlier_constant
+    component_sizes = np.bincount(pre_version.ravel())
 
-# Draw rectangle around largest component
-minr, minc, maxr, maxc = largest_component_props.bbox
-cv2.rectangle(image_label_overlay, (minc, minr), (maxc, maxr), (0, 255, 0), 3)
-
-# Calculate and print area of largest component
-area_largest_component = largest_component_props.area
-print("Area of largest component:", area_largest_component)
-
-# Display image with rectangle
-fig, ax = plt.subplots(figsize=(10, 6))
-ax.imshow(image_label_overlay)
-ax.set_axis_off()
-plt.tight_layout()
-plt.show()
+    # Check if component_sizes is not empty before finding argmax
+    if len(component_sizes) > 1:
+        too_small = component_sizes > (a4_big_size_outlier_constant)
+        too_small_mask = too_small[pre_version]
+        pre_version[too_small_mask] = 0
+        # Save the pre-version, which is the image with color labels after connected component analysis
+        plt.imsave('pre_version.png', pre_version)
+    else:
+        print("No components detected.")
+    
+        # Read the pre-version
+        img = cv2.imread('pre_version.png', 0)
+        # Ensure a binary image with Otsu’s method
+        img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
+        cv2.imwrite("temp_img_store/output.png", img)
