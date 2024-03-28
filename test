@@ -1,33 +1,97 @@
-def detect_squares(edges):
-    # Find contours
-    contours, _ = cv2.findContours(edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+import cv2 # OpenCV Library
+
+# Image to detect shapes on below
+image = cv2.imread("INSERT PATH TO IMAGE FILE HERE")
+
+gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) # Converting to gray image
+
+# Setting threshold value to get new image (In simpler terms: this function checks every pixel, and depending on how
+# dark the pixel is, the threshold value will convert the pixel to either black or white (0 or 1)).
+_, thresh_image = cv2.threshold(gray_image, 220, 255, cv2.THRESH_BINARY)
+
+# Retrieving outer-edge coordinates in the new threshold image
+contours, hierarchy = cv2.findContours(thresh_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+# Iterating through each contour to retrieve coordinates of each shape
+for i, contour in enumerate(contours):
+    if i == 0:
+        continue
+
+    # The 2 lines below this comment will approximate the shape we want. The reason being that in certain cases the
+    # shape we want might have flaws or might be imperfect, and so, for example, if we have a rectangle with a
+    # small piece missing, the program will still count it as a rectangle. The epsilon value will specify the
+    # precision in which we approximate our shape.
+    epsilon = 0.01*cv2.arcLength(contour, True)
+    approx = cv2.approxPolyDP(contour, epsilon, True)
+
+    # Drawing the outer-edges onto the image
+    cv2.drawContours(image, contour, 0, (0, 0, 0), 4)
+
+    # Retrieving coordinates of the contour so that we can put text over the shape.
+    x, y, w, h= cv2.boundingRect(approx)
+    x_mid = int(x + (w/3)) # This is an estimation of where the middle of the shape is in terms of the x-axis.
+    y_mid = int(y + (h/1.5)) # This is an estimation of where the middle of the shape is in terms of the y-axis.
+
+    # Setting some variables which will be used to display text on the final image
+    coords = (x_mid, y_mid)
+    colour = (0, 0, 0)
+    font = cv2.FONT_HERSHEY_DUPLEX
+
+    # This is the part where we actually guess which shape we have detected. The program will look at the amount of edges
+    # the contour/shape has, and then based on that result the program will guess the shape (for example, if it has 3 edges
+    # then the chances that the shape is a triangle are very good.)
+    #
+    # You can add more shapes if you want by checking more lenghts, but for the simplicity of this tutorial program I
+    # have decided to only detect 5 shapes.
+    if len(approx) == 3:
+        cv2.putText(image, "Triangle", coords, font, 1, colour, 1) # Text on the image
+    elif len(approx) == 4:
+        cv2.putText(image, "Quadrilateral", coords, font, 1, colour, 1)
+    elif len(approx) == 5:
+        cv2.putText(image, "Pentagon", coords, font, 1, colour, 1)
+    elif len(approx) == 6:
+        cv2.putText(image, "Hexagon", coords, font, 1, colour, 1)
+    else:
+        # If the length is not any of the above, we will guess the shape/contour to be a circle.
+        cv2.putText(image, "Circle", coords, font, 1, colour, 1)
     
-    # Filter contours to find squares
-    squares = []
-    sq_cord = []
-    for contour in contours:
-        # Approximate polygonal curves
-        approx = cv2.approxPolyDP(contour, 0.02 * cv2.arcLength(contour, True), True)
-        
-        # Ensure the contour has exactly four vertices
-        if len(approx) == 4:
-            # Calculate the bounding rectangle of the contour
-            x, y, w, h = cv2.boundingRect(contour)
-            
-            # Calculate aspect ratio of the bounding rectangle
-            aspect_ratio = float(w) / h
-            
-            # Check if aspect ratio is close to 1 (for squares)
-            if 0.9 <= aspect_ratio <= 1.1:
-                # Check if the contour is convex
-                if cv2.isContourConvex(approx):
-                    # Filter based on contour area
-                    if cv2.contourArea(contour) > 100:
-                        squares.append(approx)
-                        sq_cord.append([tuple(coord[0]) for coord in approx])
-    
-    # Draw squares
-    square_image = np.zeros_like(edges)
-    cv2.drawContours(square_image, squares, -1, (255, 255, 255), thickness=cv2.FILLED)
-    
-    return square_image, sq_cord
+# Displaying the image with the detected shapes onto the screen
+cv2.imshow("shapes_detected", image)
+cv2.waitKey(0)
+
+
+import numpy as np
+import cv2
+
+img = cv2.imread('shapes.jpg')
+imgGrey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+_, thrash = cv2.threshold(imgGrey, 240, 255, cv2.THRESH_BINARY)
+contours, _ = cv2.findContours(thrash, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+
+cv2.imshow("img", img)
+for contour in contours:
+    approx = cv2.approxPolyDP(contour, 0.01* cv2.arcLength(contour, True), True)
+    cv2.drawContours(img, [approx], 0, (0, 0, 0), 5)
+    x = approx.ravel()[0]
+    y = approx.ravel()[1] - 5
+    if len(approx) == 3:
+        cv2.putText(img, "Triangle", (x, y), cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 0))
+    elif len(approx) == 4:
+        x1 ,y1, w, h = cv2.boundingRect(approx)
+        aspectRatio = float(w)/h
+        print(aspectRatio)
+        if aspectRatio >= 0.95 and aspectRatio <= 1.05:
+          cv2.putText(img, "square", (x, y), cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 0))
+        else:
+          cv2.putText(img, "rectangle", (x, y), cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 0))
+    elif len(approx) == 5:
+        cv2.putText(img, "Pentagon", (x, y), cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 0))
+    elif len(approx) == 10:
+        cv2.putText(img, "Star", (x, y), cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 0))
+    else:
+        cv2.putText(img, "Circle", (x, y), cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 0))
+
+
+cv2.imshow("shapes", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
