@@ -5,86 +5,83 @@ from skimage.color import label2rgb
 from skimage.measure import regionprops
 import numpy as np
 
-# Read the image
+# %%
 img = cv2.imread('temp_img_store/SIGN_CHECK.jpg', 0)
 img = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)[1]
 
-# Connected component analysis by scikit-learn framework
+# %%
+# connected component analysis by scikit-learn framework
 blobs = img > img.mean()
 blobs_labels = measure.label(blobs, background=1)
 image_label_overlay = label2rgb(blobs_labels, image=img)
 
-# Draw image
+# %%
+# draw image
+# fix the figure size to (10, 6)
 fig, ax = plt.subplots(figsize=(10, 6))
+
+# plot the connected components (for debugging)
 ax.imshow(image_label_overlay)
 ax.set_axis_off()
 plt.tight_layout()
 plt.show()
 
-# Initialize variables
+# %%
+# initialize the variables to get the biggest component
 the_biggest_component = 0
 total_area = 0
 counter = 0
 average = 0.0
 
-# Iterate over each blob and get the highest size component
+# iterate over each blob and get the highest size component
 for region in regionprops(blobs_labels):
-    if region.area > 10:
-        total_area += region.area
-        counter += 1
-    if region.area >= 250:
-        if region.area > the_biggest_component:
-            the_biggest_component = region.area
+    # if blob size is greater than 10 then add it to the total area
+    if (region.area > 10):
+        total_area = total_area + region.area
+        counter = counter + 1
 
-# Check if any regions were detected before trying to find the biggest one
-if the_biggest_component != 0:
-    print("the_biggest_component: " + str(the_biggest_component))
-else:
-    print("No regions detected.")
+    # take regions with large enough areas and filter the highest component
+    if (region.area >= 250):
+        if (region.area > the_biggest_component):
+                the_biggest_component = region.area
 
-# Calculate the average of the blob regions if there are regions
-if counter != 0:
-    average = (total_area / counter)
-    print("average: " + str(average))
-else:
-    print("No regions detected.")
+# calculate the average of the blob regions
+average = (total_area/counter)
+print("the_biggest_component: " + str(the_biggest_component))
+print("average: " + str(average))
 
-# Parameters to remove outliers
+# %%
+# the parameters are used to remove outliers of small size connected pixels
 constant_parameter_1 = 60
 constant_parameter_2 = 200
 constant_parameter_3 = 200
+
+# the parameter is used to remove outliers of large size connected pixels
 constant_parameter_4 = 900
 
-# Experimental-based ratio calculation
-a4_small_size_outlier_constant = ((average / constant_parameter_1) * constant_parameter_2) + constant_parameter_3
+# experimental-based ratio calculation, modify it for your cases
+a4_small_size_outlier_constant = ((average/constant_parameter_1)*constant_parameter_2)+constant_parameter_3
 print("a4_small_size_outlier_constant: " + str(a4_small_size_outlier_constant))
 
-# Experimental-based ratio calculation
-a4_big_size_outlier_constant = a4_small_size_outlier_constant * constant_parameter_4
+# %%
+# experimental-based ratio calculation, modify it for your cases
+a4_big_size_outlier_constant = a4_small_size_outlier_constant*constant_parameter_4
 print("a4_big_size_outlier_constant: " + str(a4_big_size_outlier_constant))
 
-# Remove the connected pixels that are smaller than threshold a4_small_size_outlier_constant
+# %%
+# remove the connected pixels that are smaller than threshold a4_small_size_outlier_constant
 pre_version = morphology.remove_small_objects(blobs_labels, a4_small_size_outlier_constant)
+# remove the connected pixels that are bigger than threshold a4_big_size_outlier_constant
+component_sizes = np.bincount(pre_version.ravel())
+too_small = component_sizes > (a4_big_size_outlier_constant)
+too_small_mask = too_small[pre_version]
+pre_version[too_small_mask] = 0
+# save the pre-version, which is the image with color labels after connected component analysis
+plt.imsave('pre_version.png', pre_version)
 
-# Check if any components were detected before trying to find the argmax
-if pre_version.size == 0:
-    print("No components detected.")
-else:
-    # Remove the connected pixels that are bigger than threshold a4_big_size_outlier_constant
-    component_sizes = np.bincount(pre_version.ravel())
-
-    # Check if component_sizes is not empty before finding argmax
-    if len(component_sizes) > 1:
-        too_small = component_sizes > (a4_big_size_outlier_constant)
-        too_small_mask = too_small[pre_version]
-        pre_version[too_small_mask] = 0
-        # Save the pre-version, which is the image with color labels after connected component analysis
-        plt.imsave('pre_version.png', pre_version)
-    else:
-        print("No components detected.")
-    
-        # Read the pre-version
-        img = cv2.imread('pre_version.png', 0)
-        # Ensure a binary image with Otsu’s method
-        img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
-        cv2.imwrite("temp_img_store/output.png", img)
+# %%
+# read the pre-version
+img = cv2.imread('pre_version.png', 0)
+# ensure a binary image with Otsu’s method
+img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
+cv2.imwrite("temp_img_store/output.png", img)
