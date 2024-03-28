@@ -1,21 +1,90 @@
-def main(file_path: str) -> None:
-    loader = Loader()
-    extractor = Extractor(amplfier=15)
-    cropper = Cropper()
-    judger = Judger()
+# %%
+import cv2
+import matplotlib.pyplot as plt
+from skimage import measure, morphology
+from skimage.color import label2rgb
+from skimage.measure import regionprops
+import numpy as np
 
-    try:
-        masks = loader.get_masks(file_path)
-        is_signed = False
-        for mask in masks:
-            labeled_mask = extractor.extract(mask)
-            results = cropper.run(labeled_mask)
-            for result in results.values():
-                is_signed = judger.judge(result["cropped_mask"])
-                if is_signed:
-                    break
-            if is_signed:
-                break
-        print(is_signed)
-    except Exception as e:
-        print(e)
+# %%
+img = cv2.imread('temp_img_store/SIGN_CHECK.jpg', 0)
+img = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)[1]
+
+# %%
+# connected component analysis by scikit-learn framework
+blobs = img > img.mean()
+blobs_labels = measure.label(blobs, background=1)
+image_label_overlay = label2rgb(blobs_labels, image=img)
+
+# %%
+# draw image
+# fix the figure size to (10, 6)
+fig, ax = plt.subplots(figsize=(10, 6))
+
+# plot the connected components (for debugging)
+ax.imshow(image_label_overlay)
+ax.set_axis_off()
+plt.tight_layout()
+plt.show()
+
+# %%
+# initialize the variables to get the biggest component
+the_biggest_component = 0
+total_area = 0
+counter = 0
+average = 0.0
+
+# iterate over each blob and get the highest size component
+for region in regionprops(blobs_labels):
+    # if blob size is greater than 10 then add it to the total area
+    if (region.area > 10):
+        total_area = total_area + region.area
+        counter = counter + 1
+
+    # take regions with large enough areas and filter the highest component
+    if (region.area >= 250):
+        if (region.area > the_biggest_component):
+                the_biggest_component = region.area
+
+# calculate the average of the blob regions
+average = (total_area/counter)
+print("the_biggest_component: " + str(the_biggest_component))
+print("average: " + str(average))
+
+# %%
+# the parameters are used to remove outliers of small size connected pixels
+constant_parameter_1 = 60
+constant_parameter_2 = 200
+constant_parameter_3 = 200
+
+# the parameter is used to remove outliers of large size connected pixels
+constant_parameter_4 = 900
+
+# experimental-based ratio calculation, modify it for your cases
+a4_small_size_outlier_constant = ((average/constant_parameter_1)*constant_parameter_2)+constant_parameter_3
+print("a4_small_size_outlier_constant: " + str(a4_small_size_outlier_constant))
+
+# %%
+# experimental-based ratio calculation, modify it for your cases
+a4_big_size_outlier_constant = a4_small_size_outlier_constant*constant_parameter_4
+print("a4_big_size_outlier_constant: " + str(a4_big_size_outlier_constant))
+
+# %%
+# remove the connected pixels that are smaller than threshold a4_small_size_outlier_constant
+pre_version = morphology.remove_small_objects(blobs_labels, a4_small_size_outlier_constant)
+# remove the connected pixels that are bigger than threshold a4_big_size_outlier_constant
+component_sizes = np.bincount(pre_version.ravel())
+too_small = component_sizes > (a4_big_size_outlier_constant)
+too_small_mask = too_small[pre_version]
+pre_version[too_small_mask] = 0
+# save the pre-version, which is the image with color labels after connected component analysis
+plt.imsave('pre_version.png', pre_version)
+
+# %%
+# read the pre-version
+img = cv2.imread('pre_version.png', 0)
+# ensure a binary image with Otsu’s method
+img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
+cv2.imwrite("temp_img_store/output.png", img)
+
+
