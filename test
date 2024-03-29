@@ -2,29 +2,23 @@ import cv2
 import numpy as np
 
 # Load the image
-image = cv2.imread('table_image.jpg')
-original_image = image.copy()
-
-# Convert the image to grayscale
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+image = cv2.imread('table_image.jpg', 0)  # Load as grayscale
 
 # Apply adaptive thresholding to binarize the image
-thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 11, 4)
+# Adjust parameters blockSize and C for optimal results
+blockSize = 25  # Adjust block size as needed
+C = 10  # Adjust constant as needed
+thresh = cv2.adaptiveThreshold(image, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, blockSize, C)
 
 # Find contours
 contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-# Filter contours to find rectangles (tables)
+# Draw rectangles around all detected contours
 for contour in contours:
-    perimeter = cv2.arcLength(contour, True)
-    approx = cv2.approxPolyDP(contour, 0.02 * perimeter, True)
-    
-    # If the contour has 4 vertices, it's likely a rectangle (table)
-    if len(approx) == 4:
-        cv2.drawContours(original_image, [approx], -1, (0, 0, 255), 2)  # Mark the contour in red
+    x, y, w, h = cv2.boundingRect(contour)
+    cv2.rectangle(image, (x, y), (x + w, y + h), (0, 0, 255), 2)  # Mark the rectangle in red
 
 # Display the result
-cv2.imshow('Detected Rectangles', original_image)
+cv2.imshow('Detected Rectangles', image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-
