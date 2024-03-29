@@ -1,29 +1,16 @@
 import cv2
-import numpy as np
+from skimage.metrics import structural_similarity as ssim
 
 # Load the images
-img1 = cv2.imread('img1.jpg', 0)  # Load img1 in grayscale
-img2 = cv2.imread('img2.jpg', 0)  # Load img2 in grayscale
+img1 = cv2.imread('img1.jpg')
+img2 = cv2.imread('img2.jpg')
 
-# Get the dimensions of the template (img1)
-h, w = img1.shape
+# Convert the images to grayscale
+gray_img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+gray_img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
 
-# Perform template matching
-res = cv2.matchTemplate(img2, img1, cv2.TM_CCOEFF_NORMED)
+# Compute the Structural Similarity Index (SSI)
+similarity_score, _ = ssim(gray_img1, gray_img2, full=True)
 
-# Define a threshold (adjust as needed)
-threshold = 0.8
-
-# Find locations where the correlation coefficient is greater than the threshold
-loc = np.where(res >= threshold)
-
-# Draw rectangles around the matched regions
-for pt in zip(*loc[::-1]):
-    cv2.rectangle(img2, pt, (pt[0] + w, pt[1] + h), (0, 255, 255), 2)
-
-# Display the result and count the number of matches
-cv2.imshow('img2', img2)
-print("Number of occurrences:", len(loc[0]))
-
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+# The similarity score ranges from -1 to 1, where 1 means the images are identical
+print("Similarity Score:", similarity_score)
