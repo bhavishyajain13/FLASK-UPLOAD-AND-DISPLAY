@@ -1,74 +1,29 @@
 import cv2
-import matplotlib.pyplot as plt
-from skimage import measure, morphology
-from skimage.color import label2rgb
-from skimage.measure import regionprops
 import numpy as np
 
-# Read the image
-img = cv2.imread('temp_img_store/SIGN_CHECK.jpg', 0)
-img = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)[1]
+# Load the images
+img1 = cv2.imread('img1.jpg', 0)  # Load img1 in grayscale
+img2 = cv2.imread('img2.jpg', 0)  # Load img2 in grayscale
 
-# Connected component analysis using scikit-learn framework
-blobs = img > img.mean()
-blobs_labels = measure.label(blobs, background=1)
-image_label_overlay = label2rgb(blobs_labels, image=img)
+# Get the dimensions of the template (img1)
+h, w = img1.shape
 
-# Initialize variables to get the biggest component
-the_biggest_component = 0
-total_area = 0
-counter = 0
-average = 0.0
+# Perform template matching
+res = cv2.matchTemplate(img2, img1, cv2.TM_CCOEFF_NORMED)
 
-# Iterate over each blob and get the highest size component
-for region in regionprops(blobs_labels):
-    if region.area > 10:
-        total_area += region.area
-        counter += 1
-    if region.area >= 250:
-        if region.area > the_biggest_component:
-            the_biggest_component = region.area
+# Define a threshold (adjust as needed)
+threshold = 0.8
 
-# Calculate the average of the blob regions
-average = total_area / counter
+# Find locations where the correlation coefficient is greater than the threshold
+loc = np.where(res >= threshold)
 
-# Parameters to remove outliers of small size connected pixels
-constant_parameter_1 = 60
-constant_parameter_2 = 200
-constant_parameter_3 = 200
+# Draw rectangles around the matched regions
+for pt in zip(*loc[::-1]):
+    cv2.rectangle(img2, pt, (pt[0] + w, pt[1] + h), (0, 255, 255), 2)
 
-# Parameter to remove outliers of large size connected pixels
-constant_parameter_4 = 900
+# Display the result and count the number of matches
+cv2.imshow('img2', img2)
+print("Number of occurrences:", len(loc[0]))
 
-# Experimental-based ratio calculation
-a4_small_size_outlier_constant = ((average / constant_parameter_1) * constant_parameter_2) + constant_parameter_3
-
-# Experimental-based ratio calculation
-a4_big_size_outlier_constant = a4_small_size_outlier_constant * constant_parameter_4
-
-# Remove the connected pixels smaller than threshold a4_small_size_outlier_constant
-pre_version = morphology.remove_small_objects(blobs_labels, a4_small_size_outlier_constant)
-# Remove the connected pixels bigger than threshold a4_big_size_outlier_constant
-component_sizes = np.bincount(pre_version.ravel())
-too_small = component_sizes > (a4_big_size_outlier_constant)
-too_small_mask = too_small[pre_version]
-pre_version[too_small_mask] = 0
-
-# Get bounding box of the largest component
-for region in regionprops(pre_version):
-    if region.area == the_biggest_component:
-        minr, minc, maxr, maxc = region.bbox
-        break
-
-# Draw rectangle around the sign
-img_with_rectangle = cv2.rectangle(image_label_overlay, (minc, minr), (maxc, maxr), (255, 0, 0), 3)
-
-# Plot the image with rectangle
-fig, ax = plt.subplots(figsize=(10, 6))
-ax.imshow(img_with_rectangle)
-ax.set_axis_off()
-plt.tight_layout()
-plt.show()
-
-# Save the output image
-plt.imsave('temp_img_store/output_with_rectangle.png', img_with_rectangle)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
