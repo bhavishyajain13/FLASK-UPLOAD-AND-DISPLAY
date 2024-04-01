@@ -1,15 +1,9 @@
-largest_circle_contour = np.array([[
-            [x + r * np.cos(theta), y + r * np.sin(theta)]
-            for theta in np.linspace(0, 2*np.pi, 100)
-        ]], dtype=np.int32)
+roi = gray[y - r:y + r, x - r:x + r]
 
-        # Calculate convex hull of the contour
-        convex_hull = cv2.convexHull(largest_circle_contour)
+                # Calculate the percentage of white pixels within the ROI
+                total_pixels = roi.shape[0] * roi.shape[1]
+                white_pixels = np.sum(roi == 255)
+                percentage_white = (white_pixels / total_pixels) * 100
+                print("Percentage of white pixels in the detected circle:", percentage_white, "%")
 
-        # Calculate perimeter of the contour and the convex hull
-        perimeter_contour = cv2.arcLength(largest_circle_contour, True)
-        perimeter_convex_hull = cv2.arcLength(convex_hull, True)
-
-        # Compute convexity score
-        convexity_score = perimeter_contour / perimeter_convex_hull
-        print("Convexity Score of the largest circle:", convexity_score)
+        # Display the detected circle
