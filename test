@@ -15,3 +15,26 @@ with pd.ExcelWriter(file_path, mode='a', engine='openpyxl') as writer:
     filtered_df.to_excel(writer, sheet_name='Filtered_Data', index=False)
 
 print("Filtered data has been written to a new sheet 'Filtered_Data'.")
+
+
+import pandas as pd
+
+# Read the Excel file
+file_path = 'path_to_your_excel_file.xlsx'  # Update with the path to your Excel file
+xls = pd.ExcelFile(file_path)
+
+# Initialize a dictionary to store the 10th row of each subsheet
+tenth_rows = {}
+
+# Iterate over each sheet in the Excel file
+for sheet_name in xls.sheet_names:
+    # Read the sheet into a DataFrame
+    df = pd.read_excel(file_path, sheet_name=sheet_name)
+    # Extract the 10th row and store it in the dictionary
+    tenth_rows[sheet_name] = df.iloc[9]  # 10th row index is 9 in zero-based indexing
+
+# Print the 10th row of each subsheet
+for sheet_name, row in tenth_rows.items():
+    print(f"Sheet: {sheet_name}")
+    print(row)
+    print()  # Add a newline for readability
