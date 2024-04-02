@@ -1,0 +1,63 @@
+import React, { useState } from 'react';
+
+const MyComponent = () => {
+    const [flag, setFlag] = useState(true);
+
+    const try1 = () => {
+        if (flag) {
+            magnify("myimage", 3); // Assuming you have magnify function defined elsewhere
+            setFlag(false);
+        } else {
+            let glass = document.querySelector(".img-magnifier-glass");
+            glass.parentElement.removeChild(glass);
+            setFlag(true); 
+        }
+    }
+
+    return (
+        <div>
+            <h1 style={{ margin: '0px', textAlign: 'center', paddingTop: '10px', paddingBottom: '10px', borderBottom: '2px solid whitesmoke' }}>SIP Form Validation</h1>
+
+            <div className="row" style={{ height: '750px' }}>
+                <div className="col-md-8" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                    <h2>Select a file to upload</h2>
+                    <p>
+                        {/* Flash messages */}
+                    </p>
+                    {/* Image display */}
+                    <div className="img-magnifier-container" style={{ border: '4px solid white', textAlign: 'center', height: '70vh', width: '80%', font: '16px/26px Georgia, Garamond, Serif', overflow: 'auto' }}>
+                        <img id="myimage" src="/path/to/image" />
+                    </div>
+
+                    <form style={{ marginTop: '15px' }} id="upload_form" method="post" action="/" encType="multipart/form-data">
+                        <input type="file" name="file" value="file" id="file" className="hidden" autoComplete="off" required />
+                        <label htmlFor="file" className="btn btn-info"> Upload</label>
+                        <input size="10em" type="submit" id="submit_btn" value="Submit" className="btn btn-info" style={{ display: 'none' }} />
+                        <input style={{ marginLeft: '15px' }} size="10em" type="submit" id="mag_btn" value="Magnifier" onClick={try1} className="btn btn-info" />
+                    </form>
+                </div>
+                <div className="col-md-4" id="output_div">
+                    <h2>Output</h2>
+                    {/* Buttons */}
+                    <div className="button-container">
+                        <button id="button1" className="first-button" onClick={() => toggleDiv(1)}>VALID</button>
+                        <button id="button2" className="second-button" onClick={() => toggleDiv(2)}>INVALID</button>
+                        <button id="button3" className="third-button" onClick={() => toggleDiv(3)}>ALL</button>
+                    </div>
+                    {/* Output text */}
+                    <div className="toggle-div" id="ot_text1">
+                        {/* Output based on conditions */}
+                    </div>
+                    <div className="toggle-div" id="ot_text2">
+                        {/* Output based on conditions */}
+                    </div>
+                    <div className="toggle-div" id="ot_text3">
+                        {/* Output based on conditions */}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default MyComponent;
