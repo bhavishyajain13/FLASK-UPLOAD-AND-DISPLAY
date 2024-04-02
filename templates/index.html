@@ -1,47 +1,47 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta name="viewport" content="initial-scale=1.0">
     <title>Python Flask Upload and display image</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='/mystyle.css') }}" />
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='/mystyle.css') }}" /> -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
-    <script src="{{ url_for('static', filename='/magnifier.js') }}"></script>
+
+    <link rel="stylesheet" href="mystyle.css">
+    <!-- <script src="{{ url_for('static', filename='/magnifier.js') }}"></script> -->
+    <script src="magnifier.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 </head>
-<style>
-    #output_div {
-        display: none; /* Initially invisible */
-    }
-</style>
-<body style="background-color:#282828;color:whitesmoke; ">
-    <h1 style="margin: 0px ;text-align: center; padding-top: 10px; padding-bottom: 10px; border-bottom: 2px solid whitesmoke; ">SIP Form Validation</h1>
 
-    <div  class="row" style="height: 750px;">
-        <div class="col-md-8" style="display: flex; flex-direction:column ; justify-content: center; align-items: center;">
+<body>
+    <h1>SIP Form Validation</h1>
+
+    <div class="row">
+        <div class="col-md-7"
+            style="display: flex; flex-direction:column ; justify-content: center; align-items: center;">
             <h2>Select a file to upload</h2>
             <p>
-                {% with messages = get_flashed_messages() %}
-                {% if messages %}
+                <!-- {% with messages = get_flashed_messages() %}
+                {% if messages %} -->
             <ul>
-                {% for message in messages %}
+                <!-- {% for message in messages %}
                 <li>{{ message }}</li>
-                {% endfor %}
+                {% endfor %} -->
             </ul>
-            {% endif %}
-            {% endwith %}
+            <!-- {% endif %}
+            {% endwith %} -->
             </p>
-            {% if filename %}
-            <div class="img-magnifier-container"  style=" border: 4px solid white;text-align: center;height:70vh;width:80%;font:16px/26px Georgia, Garamond, Serif;overflow:auto;">
-                <img id="myimage" 
-                    src="{{ url_for('display_image', filename=filename) }}">
+            <!-- {% if filename %} -->
+            <div class="img-magnifier-container">
+                <img id="myimage" src="{{ url_for('display_image', filename=filename) }}">
             </div>
-            {% endif %}
-            <form  style="margin-top: 15px;" id="upload_form" method="post" action="/" enctype="multipart/form-data">
+            <!-- {% endif %} -->
+            <form id="upload_form" method="post" action="/" enctype="multipart/form-data">
                 <!-- <p style="margin-top: 20px;"> -->
-                    <input type="file" name="file" value="file" id="file" class="hidden" autocomplete="off" required>
-                    <label for="file" class="btn btn-info"> Upload</label>
-                    <input size="10em" type="submit" id="submit_btn" value="Submit" class="btn btn-info" style="display: none;" >
-                    <input style="margin-left: 15px;" size="10em" type="submit" id="mag_btn" value="Magnifier" onclick="try1()" class="btn btn-info" >
+                <input type="file" name="file" value="file" id="file" class="hidden" autocomplete="off" required>
+                <label for="file" class="btn btn-info"> Upload</label>
+                <input size="10em" type="submit" id="submit_btn" value="Submit" class="btn btn-info">
+                <input size="10em" type="submit" id="mag_btn" value="Magnifier" onclick="try1()" class="btn btn-info">
                 <p style="text-align: center;">
                 </p>
             </form>
@@ -49,11 +49,45 @@
         </div>
         <div class="col-md-4" id="output_div">
             <h2>Output</h2>
-            <div id="ot_text">
-                {% for item in inp %}
-                <div style="font-size: 1.7em;">{{ item }}</div>
-                {% endfor %}
+            <div class="button-container">
+                <button id="button1" class="first-button" onclick="toggleDiv(1)">Valid</button>
+                <button id="button2" class="second-button" onclick="toggleDiv(2)">Invalid</button>
+                <button id="button3" class="third-button" onclick="toggleDiv(3)">All</button>
             </div>
+
+            <div class="toggle-div " id="ot_text1">
+                <!-- {% for item in inp %}
+                {%if ("VALID".upper() in item.upper()) and ("invalid".upper() not in item.upper())%} -->
+                <div style="font-size: 1.3em; ">{{ item }}</div>
+                <!-- {%endif%}
+                {% endfor %} -->
+            </div>
+            <div class="toggle-div" id="ot_text2">
+                <!-- {% for item in inp %}
+                {%if "invalid".upper() in item.upper()%} -->
+                <div style="font-size: 1.3em;">{{ item }}</div>
+                <!-- {%endif%}
+                {% endfor %} -->
+            </div>
+            <div class="toggle-div" id="ot_text3">
+                <!-- {% for item in inp %} -->
+                <div style="font-size: 1.3em;">{{ item }}</div>
+                <!-- {% endfor %} -->
+            </div>
+            <br><br>
+            <table id="myTable">
+                <thead>
+                    <tr>
+                        <th>Field Name</th>
+                        <th>Cases</th>
+                        <th>Reasons</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows will be inserted dynamically here -->
+                </tbody>
+            </table>
+
         </div>
     </div>
     <script>
@@ -65,18 +99,31 @@
             } else {
                 let glass = document.querySelector(".img-magnifier-glass");
                 glass.parentElement.removeChild(glass);
-                flag = true; 
+                flag = true;
             }
         }
-        document.getElementById("file").onchange=function(){
+        document.getElementById("file").onchange = function () {
             document.getElementById("upload_form").submit()
         }
+        // Function to generate rows dynamically
+        function generateRows(numRows) {
+            var tableBody = document.querySelector("#myTable tbody");
+            tableBody.innerHTML = ""; // Clear existing rows
 
-        document.getElementById("upload_form").addEventListener("submit", function() {
-            document.getElementById("output_div").style.display = "block";
-        });
+            for (var i = 0; i < numRows; i++) {
+                var row = "<tr>";
+                for (var j = 0; j < 3; j++) {
+                    row += "<td>Row " + (i + 1) + ", Col " + (j + 1) + "</td>";
+                }
+                row += "</tr>";
+                tableBody.innerHTML += row;
+            }
+        }
+
+        // Call the function with the desired number of rows
+        generateRows(5); // Change the number of rows as needed
     </script>
-    
+
 </body>
 
 </html>
