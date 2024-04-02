@@ -38,3 +38,29 @@ for sheet_name, row in tenth_rows.items():
     print(f"Sheet: {sheet_name}")
     print(row)
     print()  # Add a newline for readability
+
+
+import pandas as pd
+
+# Read the Excel file
+file_path = 'path_to_your_excel_file.xlsx'  # Update with the path to your Excel file
+xls = pd.ExcelFile(file_path)
+
+# Initialize a dictionary to store the data of each subsheet
+subsheet_data = {}
+
+# Iterate over each sheet in the Excel file
+for sheet_name in xls.sheet_names:
+    # Read the sheet into a DataFrame, skipping the first 9 rows
+    df = pd.read_excel(file_path, sheet_name=sheet_name, skiprows=9)
+    # Store the DataFrame in the dictionary
+    subsheet_data[sheet_name] = df
+
+# Write the subsheet data to a new Excel file
+output_file_path = 'path_to_output_excel_file.xlsx'  # Update with the desired output file path
+with pd.ExcelWriter(output_file_path) as writer:
+    for sheet_name, df in subsheet_data.items():
+        df.to_excel(writer, sheet_name=sheet_name, index=False)
+
+print(f"New Excel file '{output_file_path}' has been created with rows before the 10th row removed from each subsheet.")
+
