@@ -64,3 +64,32 @@ with pd.ExcelWriter(output_file_path) as writer:
 
 print(f"New Excel file '{output_file_path}' has been created with rows before the 10th row removed from each subsheet.")
 
+---------------x-------------
+
+import json
+
+def parse_data(data):
+    result = {}
+    for item in data:
+        parts = item.split(' - ')
+        if len(parts) == 2:
+            date, validity = parts
+            validity = validity.strip()  # Remove leading/trailing whitespace
+            if validity == 'invalid':
+                reason = parts[1].split(' (')[1].rstrip(')')
+                result[date] = {'case': 'invalid', 'reason': reason}
+            elif validity == 'valid':
+                result[date] = {'case': 'valid'}
+    return result
+
+# Example data in the format provided
+data = [
+    'sip date(nach) - invalid (NOT FOUND)',
+    'To date - valid'
+]
+
+# Parse the data and convert it to JSON
+json_result = json.dumps(parse_data(data), indent=4)
+print(json_result)
+
+
