@@ -1,9 +1,17 @@
-roi = gray[y - r:y + r, x - r:x + r]
+import pandas as pd
 
-                # Calculate the percentage of white pixels within the ROI
-                total_pixels = roi.shape[0] * roi.shape[1]
-                white_pixels = np.sum(roi == 255)
-                percentage_white = (white_pixels / total_pixels) * 100
-                print("Percentage of white pixels in the detected circle:", percentage_white, "%")
+# Read the Excel file
+file_path = 'path_to_your_excel_file.xlsx'  # Update with the path to your Excel file
+df = pd.read_excel(file_path, sheet_name='Sheet1')  # Update 'Sheet1' with the name of the sheet you want to query
 
-        # Display the detected circle
+# Define your query
+query = 'column_name > 10'  # Update 'column_name > 10' with your query
+
+# Apply the query
+filtered_df = df.query(query)
+
+# Write the filtered data to a new sheet in the same Excel file
+with pd.ExcelWriter(file_path, mode='a', engine='openpyxl') as writer:
+    filtered_df.to_excel(writer, sheet_name='Filtered_Data', index=False)
+
+print("Filtered data has been written to a new sheet 'Filtered_Data'.")
