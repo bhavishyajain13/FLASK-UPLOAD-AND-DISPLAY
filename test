@@ -1,57 +1,58 @@
-<script>
-        let jsonData = {}; // Variable to store fetched JSON data
+from flask import Flask, flash, request, redirect, url_for, render_template
+import urllib.request
+import os, webbrowser,sc1,json
+from flask_ngrok import run_with_ngrok
+from werkzeug.utils import secure_filename
+ 
+app = Flask(__name__)
+ 
+UPLOAD_FOLDER = 'static/uploads/'
+ 
+app.secret_key = "secret key"
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+ 
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+ 
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-        // Function to fetch data from the API
-        function fetchData() {
-            fetch('your_api_url_here')
-                .then(response => response.json())
-                .then(data => {
-                    jsonData = data; // Store fetched data in a variable
-                    toggleDiv('all'); // Initially show all data
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                });
-        }
-
-        // Function to toggle display based on button clicked
-        function toggleDiv(type) {
-            const filteredData = filterData(type);
-            displayData(filteredData);
-        }
-
-        // Function to filter data based on button clicked
-        function filterData(type) {
-            if (type === 'valid') {
-                return Object.entries(jsonData).filter(([key, value]) => value.case === 'valid');
-            } else if (type === 'invalid') {
-                return Object.entries(jsonData).filter(([key, value]) => value.case === 'invalid');
-            } else {
-                return Object.entries(jsonData);
-            }
-        }
-
-        // Function to display filtered data
-        function displayData(filteredData) {
-            const tableBody = document.getElementById("tableBody");
-            tableBody.innerHTML = ""; // Clear existing rows
-
-            filteredData.forEach(([key, value]) => {
-                const row = document.createElement("tr");
-                const fieldNameCell = document.createElement("td");
-                fieldNameCell.textContent = key;
-                const caseCell = document.createElement("td");
-                caseCell.textContent = value.case;
-                const reasonCell = document.createElement("td");
-                reasonCell.textContent = value.reason || "-"; // If reason is not available, display "-"
-
-                row.appendChild(fieldNameCell);
-                row.appendChild(caseCell);
-                row.appendChild(reasonCell);
-                tableBody.appendChild(row);
-            });
-        }
-
-        // Call fetchData function to fetch data when the page loads
-        fetchData();
-    </script>
+# VTJ8RCP3@747884
+ 
+@app.route('/')
+def home():
+    return render_template('index.html')
+ 
+@app.route('/', methods=['POST'])
+def upload_image():
+    if 'file' not in request.files:
+        flash('No file part')
+        return redirect(request.url)
+    file = request.files['file']
+    if file.filename == '':
+        flash('No image selected for uploading')
+        return redirect(request.url)
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        #print('upload_image filename: ' + filename)
+        z=sc1.entry_point3(filename)
+        # z=""
+        # z=["VALID", "INVALID"]
+        print("zzzzzzz\n\n\n\n\n",z)
+        flash('Image successfully uploaded and displayed below')
+        return render_template('index.html', filename=filename,inp=z)
+        # return render_template('index.html', filename=filename,inp="YAYYY1 &&& YAYYY2 &&& YAYYY3".split("&&&"))
+    else:
+        flash('Allowed image types are - png, jpg, jpeg, gif')
+        return redirect(request.url)
+ 
+@app.route('/display/<filename>')
+def display_image(filename):
+    #print('display_image filename: ' + filename)
+    return redirect(url_for('static', filename='uploads/' + filename), code=301)
+ 
+if __name__ == "__main__":
+    # app.run(debug=True)
+    sc1.initalize_api() 
+    app.run(host='0.0.0.0', port=3000, debug=True)
