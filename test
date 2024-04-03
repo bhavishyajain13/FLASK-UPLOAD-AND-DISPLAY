@@ -1,10 +1,12 @@
 from flask import Flask, flash, request, redirect, url_for, render_template
 import urllib.request
-import os, webbrowser,sc1,json
+import os
+import sc1
 from flask_ngrok import run_with_ngrok
 from werkzeug.utils import secure_filename
  
 app = Flask(__name__)
+run_with_ngrok(app)  # Start ngrok when app is run
  
 UPLOAD_FOLDER = 'static/uploads/'
  
@@ -19,11 +21,11 @@ def allowed_file(filename):
 
 # VTJ8RCP3@747884
  
-@app.route('/')
+@app.route('/ocr_sip/')
 def home():
     return render_template('index.html')
  
-@app.route('/', methods=['POST'])
+@app.route('/ocr_sip/', methods=['POST'])
 def upload_image():
     if 'file' not in request.files:
         flash('No file part')
@@ -36,18 +38,18 @@ def upload_image():
         filename = secure_filename(file.filename)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         #print('upload_image filename: ' + filename)
-        z=sc1.entry_point3(filename)
+        z = sc1.entry_point3(filename)
         # z=""
         # z=["VALID", "INVALID"]
         print("zzzzzzz\n\n\n\n\n",z)
         flash('Image successfully uploaded and displayed below')
-        return render_template('index.html', filename=filename,inp=z)
+        return render_template('index.html', filename=filename, inp=z)
         # return render_template('index.html', filename=filename,inp="YAYYY1 &&& YAYYY2 &&& YAYYY3".split("&&&"))
     else:
         flash('Allowed image types are - png, jpg, jpeg, gif')
         return redirect(request.url)
  
-@app.route('/display/<filename>')
+@app.route('/ocr_sip/display/<filename>')
 def display_image(filename):
     #print('display_image filename: ' + filename)
     return redirect(url_for('static', filename='uploads/' + filename), code=301)
