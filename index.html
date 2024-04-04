@@ -7,14 +7,14 @@
     <title>Python Flask Upload and display image</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='mystyle.css') }}" />
-    <script src="{{ url_for('static', filename='/magnifier.js') }}"></script>
+    <link rel="stylesheet" href="style.css" />
+    <script src="magnifier.js"></script>
 </head>
 
 <body>
     <h1 >SIP Form Validation</h1>
     
-    <div id="svg_div">
+    <div id="svg_div" style="display: none;">
 		<svg class="lp" viewBox="0 0 128 128" width="128px"   height="128px">
 		<defs>
 			<linearGradient id="grad1" x1="0" y1="0" x2="0" y2="1">
@@ -53,24 +53,10 @@
         <div class="col-md-7"
             style="display: flex; flex-direction:column ; justify-content: center; align-items: center;">
             <h2>Select a file to upload</h2>
-            <p>
-                {% with messages = get_flashed_messages() %}
-                {% if messages %}
-            <ul>
-                {% for message in messages %}
-                <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-            {% endwith %}
-            </p>
-            
-            {% if filename %}
             <div class="img-magnifier-container">
-                <img id="myimage" src="{{ url_for('display_image', filename=filename) }}">
+                <img id="myimage" src="">
             </div>
-            {% endif %}
-            <form id="upload_form" method="post" action="" enctype="multipart/form-data">
+            <form id="upload_form" enctype="multipart/form-data">
                 <p style="margin-top: 20px;">
                 <input type="file" name="file" value="file" id="file" class="hidden" autocomplete="off" required>
                 <label for="file" class="btn btn-info"> Upload</label>
@@ -99,15 +85,7 @@
                                 <th>Cases</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {% for item in inp %}
-                                {% if "VALID" in item.upper() and "INVALID" not in item.upper() %}
-                                    <tr>
-                                        <td>{{ item.split(' - ')[0] }}</td>
-                                        <td>{{ item.split(' - ')[1].split(' (')[0] }}</td>
-                                    </tr>
-                                {% endif %}
-                            {% endfor %}
+                        <tbody id="tableBody1">
                         </tbody>
                     </table>
                 </div>
@@ -123,16 +101,7 @@
                                 <th>Reason</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {% for item in inp %}
-                                {% if "INVALID" in item.upper() %}
-                                    <tr>
-                                        <td>{{ item.split(' - ')[0] }}</td>
-                                        <td>{{ item.split(' - ')[1].split(' (')[0] }}</td>
-                                        <td>{{ item.split(' - ')[1].split(' (')[1][:-1] if '(' in item else '' }}</td>
-                                    </tr>
-                                {% endif %}
-                            {% endfor %}
+                        <tbody id="tableBody2">
                         </tbody>
                     </table>
                 </div>
@@ -147,25 +116,7 @@
                                 <th>Reason</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {% for item in inp %}
-                                {% if "INVALID" in item.upper() %}
-                                    <tr>
-                                        <td>{{ item.split(' - ')[0] }}</td>
-                                        <td>{{ item.split(' - ')[1].split(' (')[0] }}</td>
-                                        <td>{{ item.split(' - ')[1].split(' (')[1][:-1] if '(' in item else '' }}</td>
-                                    </tr>
-                                {% endif %}
-                            {% endfor %}
-                            {% for item in inp %}
-                                {% if "VALID" in item.upper() and "INVALID" not in item.upper() %}
-                                    <tr>
-                                        <td>{{ item.split(' - ')[0] }}</td>
-                                        <td>{{ item.split(' - ')[1].split(' (')[0] }}</td>
-                                        <td></td>
-                                    </tr>
-                                {% endif %}
-                            {% endfor %}
+                        <tbody id="tableBody3">
                         </tbody>
                     </table>
             </div>
@@ -190,39 +141,84 @@
             document.getElementById("submit_btn").click()
         }
 
-        function onResponseReceived(){
-            document.getElementById("svg_div").style.display="none"
-            document.getElementById("inp_out_window").style.display = "block"
-        }
 
-        document.getElementById("submit_btn").addEventListener("click", function() {
-            var formData = new FormData(document.getElementById("upload_form")); // Create FormData object from the form
+        document.getElementById("submit_btn").addEventListener("click", function(event) {
+        event.preventDefault();
+        var formData = new FormData(document.getElementById("upload_form")); // Create FormData object from the form
+        console.log("kala jaadu")
+        fetch("https://nlp.icicipruamc.com/ocr_sip/", {
+            method: "POST",
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest' 
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
+        })
+        .then(data => {
+
             
-            var xhr = new XMLHttpRequest(); // Create new XMLHttpRequest object
-            xhr.open("POST", "", true); // Set up the request
-            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest'); // Set AJAX header
+            var fileInput = document.getElementById("file");
+            var filename = fileInput.value.split('\\').pop().replace(/ /g, "_");
             
-            // Define a function to handle the response
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    // Request was successful
-                    // Do something with the response, if needed
-                    console.log("yay")
-                    console.log(xhr.responseText)
-                } else {
-                    // Request failed
-                    console.error('Request failed. Status: ' + xhr.status);
-                }
-            };
+            document.getElementById("svg_div").style.display="none";
+            document.getElementById("myimage").src="https://nlp.icicipruamc.com/ocr_sip/static/uploads/"+filename;
+            document.getElementById("inp_out_window").style.display = "block";
+            var tableBody1 = document.getElementById('tableBody1');
+            var tableBody2 = document.getElementById('tableBody2');
+            var tableBody3 = document.getElementById('tableBody3');
+
+            var jsonData = JSON.parse(data)
+            all_display(jsonData)
             
-            // Define a function to handle errors
-            xhr.onerror = function() {
-                console.error('Request failed');
-            };
-            
-            // Send the request
-            xhr.send(formData);
+        })
+        .catch(error => {
+            console.error('There was a problem with your fetch operation:', error);
         });
+    });
+    toggleDiv(2)
+    function all_display(jsonData){
+        
+        for (var fieldName in jsonData) {
+            if (jsonData.hasOwnProperty(fieldName)) {
+                var rowData = jsonData[fieldName];
+                if (rowData.case == "VALID") {
+                    var newRow = document.createElement('tr');
+                    newRow.innerHTML = '<td>' + fieldName + '</td>' +
+                        '<td>' + rowData.case + '</td>';
+                    tableBody1.appendChild(newRow);
+                }
+            }
+        }
+        for (var fieldName in jsonData) {
+            if (jsonData.hasOwnProperty(fieldName)) {
+                var rowData = jsonData[fieldName];
+                if (rowData.case == "INVALID") {
+                    var newRow = document.createElement('tr');
+                    newRow.innerHTML = '<td>' + fieldName + '</td>' +
+                        '<td>' + rowData.case + '</td>' +
+                        '<td>' + rowData.reason + '</td>';
+                    tableBody2.appendChild(newRow);
+                }
+            }
+        } 
+
+        for (var fieldName in jsonData) {
+            if (jsonData.hasOwnProperty(fieldName)) {
+                var rowData = jsonData[fieldName];
+                var newRow = document.createElement('tr');
+                newRow.innerHTML = '<td>' + fieldName + '</td>' +
+                    '<td>' + rowData.case + '</td>' +
+                    '<td>' + rowData.reason + '</td>';
+                tableBody3.appendChild(newRow);
+            }
+        }
+    }
+    
     </script>
 
 </body>
