@@ -1,433 +1,204 @@
-@media screen and (max-width: 769px) {
-  #output_div {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      font-size: 11px;
-  }
+<!DOCTYPE html>
+<html>
 
-  #ot_text1,
-  #ot_text2,
-  #ot_text3 {
-      padding-top: 1em;
-      padding-left: 6px;
-  }
+<head>
+    <meta name="viewport" content="initial-scale=1.0">
+    <title>Python Flask Upload and display image</title>
+    <!-- <base href="/ocr_sip/"> -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css" />
+    <script src="{{ url_for('static', filename='/magnifier.js') }}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+</head>
 
-  #myimage {
-      height: 150%;
-      width: 150%;
-  }
+<body style="background-color: #282828;">
+    <h1>SIP Form Validation</h1>
+    
+    <div id="svg_div">
+		<svg class="lp" viewBox="0 0 128 128" width="128px"   height="128px">
+		<defs>
+			<linearGradient id="grad1" x1="0" y1="0" x2="0" y2="1">
+				<stop offset="0%" stop-color="#000" />
+				<stop offset="100%" stop-color="#fff" />
+			</linearGradient>
+			<mask id="mask1">
+				<rect x="0" y="0" width="128" height="128" fill="url(#grad1)" />
+			</mask>
+		</defs>
+		<g fill="none" stroke-linecap="round" stroke-width="16">
+			<circle class="lp__ring" r="56" cx="64" cy="64" stroke="#ddd" />
+			<g stroke="hsl(183,10%,40%)">
+				<polyline class="lp__fall-line" points="64,8 64,120" />
+				<polyline class="lp__fall-line lp__fall-line--delay1" points="64,8 64,120" />
+				<polyline class="lp__fall-line lp__fall-line--delay2" points="64,8 64,120" />
+				<polyline class="lp__fall-line lp__fall-line--delay3" points="64,8 64,120" />
+				<polyline class="lp__fall-line lp__fall-line--delay4" points="64,8 64,120" />
+				<circle class="lp__drops" r="56" cx="64" cy="64" transform="rotate(90,64,64)" />
+				<circle class="lp__worm" r="56" cx="64" cy="64" transform="rotate(-90,64,64)" />
+			</g>
+			<g stroke="hsl(93,90%,40%)" mask="url(#mask1)">
+				<polyline class="lp__fall-line" points="64,8 64,120" />
+				<polyline class="lp__fall-line lp__fall-line--delay1" points="64,8 64,120" />
+				<polyline class="lp__fall-line lp__fall-line--delay2" points="64,8 64,120" />
+				<polyline class="lp__fall-line lp__fall-line--delay3" points="64,8 64,120" />
+				<polyline class="lp__fall-line lp__fall-line--delay4" points="64,8 64,120" />
+				<circle class="lp__drops" r="56" cx="64" cy="64" transform="rotate(90,64,64)" />
+				<circle class="lp__worm" r="56" cx="64" cy="64" transform="rotate(-90,64,64)" />
+			</g>
+		</g>
+		</svg>
+	</div>
 
-}
+    <div id="inp_out_window" style="display: none;" class="row">
+        <div class="col-md-7"
+            style="display: flex; flex-direction:column ; justify-content: center; align-items: center;">
+            <h2>Select a file to upload</h2>
+            <p>
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+            <ul>
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% endwith %}
+            </p>
+            
+            {% if filename %}
+            <div class="img-magnifier-container">
+                <img id="myimage" src="{{ url_for('display_image', filename=filename) }}">
+            </div>
+            {% endif %}
+            <form id="upload_form" method="post" action="" enctype="multipart/form-data">
+                <p style="margin-top: 20px;">
+                <input type="file" name="file" value="file" id="file" class="hidden" autocomplete="off" required>
+                <label for="file" class="btn btn-info"> Upload</label>
+                <input size="10em" type="submit" id="submit_btn" value="Submit" class="btn btn-info">
+                <input size="10em" type="submit" id="mag_btn" value="Magnifier" onclick="try1()" class="btn btn-info">
+                <p style="text-align: center;">
+                </p>
+            </form>
 
-.row {
-  height: 750px;
-}
+        </div>
+        
+        <div class="col-md-4" id="output_div">
+            <h2>Output</h2>
+            <div class="button-container">
+                <button id="button1" class="first-button" onclick="toggleDiv(1)">Valid</button>
+                <button id="button2" class="second-button" onclick="toggleDiv(2)">Invalid</button>
+                <button id="button3" class="third-button" onclick="toggleDiv(3)">All</button>
+            </div>
 
-#submit_btn {
-  display: none;
-}
+            <div class="toggle-div" id="ot_text1">
+                <div style="font-size: 1em;">
+                    <table id="myTable">
+                        <thead>
+                            <tr>
+                                <th>Field Name</th>
+                                <th>Cases</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in inp %}
+                                {% if "VALID" in item.upper() and "INVALID" not in item.upper() %}
+                                    <tr>
+                                        <td>{{ item.split(' - ')[0] }}</td>
+                                        <td>{{ item.split(' - ')[1].split(' (')[0] }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="toggle-div" id="ot_text2">
+                <div style="font-size: 1em;">
+                    <table id="myTable">
+                        <thead>
+                            <tr>
+                                <th>Field Name</th>
+                                <th>Cases</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in inp %}
+                                {% if "INVALID" in item.upper() %}
+                                    <tr>
+                                        <td>{{ item.split(' - ')[0] }}</td>
+                                        <td>{{ item.split(' - ')[1].split(' (')[0] }}</td>
+                                        <td>{{ item.split(' - ')[1].split(' (')[1][:-1] if '(' in item else '' }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-#mag_btn {
-  margin-left: 15px;
-}
+            <div class="toggle-div" id="ot_text3">
+                <div style="font-size: 1em;">
+                    <table id="myTable">
+                        <thead>
+                            <tr>
+                                <th>Field Name</th>
+                                <th>Cases</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in inp %}
+                                {% if "INVALID" in item.upper() %}
+                                    <tr>
+                                        <td>{{ item.split(' - ')[0] }}</td>
+                                        <td>{{ item.split(' - ')[1].split(' (')[0] }}</td>
+                                        <td>{{ item.split(' - ')[1].split(' (')[1][:-1] if '(' in item else '' }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                            {% for item in inp %}
+                                {% if "VALID" in item.upper() and "INVALID" not in item.upper() %}
+                                    <tr>
+                                        <td>{{ item.split(' - ')[0] }}</td>
+                                        <td>{{ item.split(' - ')[1].split(' (')[0] }}</td>
+                                        <td></td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-form {
-  margin-top: 15px;
-}
+        </div>
+    </div>
+    <script>
+        let flag = true;
+        function try1() {
+            if (flag) {
+                magnify("myimage", 3);
+                flag = false;
+            } else {
+                let glass = document.querySelector(".img-magnifier-glass");
+                glass.parentElement.removeChild(glass);
+                flag = true;
+            }
+        }
+        document.getElementById("file").onchange = function () {
+            document.getElementById("loading").style.display = "block"
+            document.getElementById("inp_out_window").style.display = "none"
+            document.getElementById("upload_form").submit()
+        }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  border: 2px solid whitesmoke;
-  margin-right: 1px;
-  text-align: center;
-}
+        function onResponseReceived(){
+            document.getElementById("loading").style.display = "none"
+            document.getElementById("inp_out_window").style.display = "block"
+        }
+    </script>
 
-th,
-td {
-  padding: 8px;
-  border: 1px solid #ffffff;
-  text-align: center;
-}
+</body>
 
-.img-magnifier-container {
-  border: 4px solid whitesmoke;
-  text-align: center;
-  height: 70vh;
-  width: 80%;
-  font: 16px/26px Georgia, Garamond, Serif;
-  overflow: auto;
-}
-
-th {
-  background-color: #21c4d3;
-  text-align: center;
-}
-
-@media only screen and (max-width: 600px) {
-
-  th,
-  td {
-      width: 100%;
-      display: block;
-  }
-
-  th {
-      text-align: center;
-  }
-}
-
-@media screen and (min-width: 769px) {
-  .img-magnifier-container {
-      position: relative;
-  }
-
-  .img-magnifier-glass {
-      position: absolute;
-      border: 3px solid #000;
-      cursor: none;
-      width: 250px;
-      height: 150px;
-  }
-
-
-  #ot_text1,
-  #ot_text2,
-  #ot_text3 {
-      padding-top: 1.5em;
-
-  }
-
-  #output_div {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: start;
-      font-size: 17px;
-  }
-
-}
-
-.button-container {
-  display: inline-block;
-}
-
-button {
-  border: none;
-  border-radius: 20px;
-  padding: 5px 8px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-body {
-  background-color: #282828;
-  color: rgb(255, 255, 255);
-}
-
-h1 {
-  margin: 0px;
-  text-align: center;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid whitesmoke;
-}
-
-.third-button,
-.second-button,
-.first-button {
-  border-right: none;
-  color: #fff;
-  background-color: #5bc0de;
-  border-color: #46b8da;
-}
-
-.third-button {
-  padding: 5px 15px;
-}
-
-.toggle-div {
-  display: none;
-  padding: 0px;
-  border-radius: 100px;
-}
-
-.active {
-  background-color: #000;
-  color: lightblue;
-}
-
-
-#svg_div {
-  --hue: 223;
-  --bg: hsl(var(--hue),90%,95%);
-  --fg: hsl(var(--hue),90%,5%);
-  background-color: var(--bg); /* Setting background color */
-  font-size: calc(16px + (24 - 16) * (100vw - 320px) / (1280 - 320px));
-
-  width: 100%;
-  height: 100vh;
-  display: grid;
-  place-items: center;
-  transition: background-color 0.3s;
-}
-
-#svg_div main {
-  padding: 1.5em 0;
-}
-
-#svg_div .lp {
-  width: 8em;
-  height: 8em;
-}
-
-#svg_div .lp__drops,
-#svg_div .lp__fall-line,
-#svg_div .lp__worm {
-  animation-duration: 4s;
-  animation-iteration-count: infinite;
-  transform-origin: 64px 64px;
-}
-
-#svg_div .lp__drops {
-  animation-name: drops;
-  animation-timing-function: ease-in-out;
-  stroke-dasharray: 22 307.85 22;
-  visibility: hidden;
-  transform: rotate(90deg);
-}
-
-#svg_div .lp__fall-line {
-  animation-name: fallLine1;
-  animation-timing-function: ease-in;
-  stroke-dasharray: 1 112;
-  stroke-dashoffset: 114;
-}
-
-#svg_div .lp__fall-line--delay1 {
-  animation-name: fallLine2;
-}
-
-#svg_div .lp__fall-line--delay2 {
-  animation-name: fallLine3;
-}
-
-#svg_div .lp__fall-line--delay3 {
-  animation-name: fallLine4;
-}
-
-#svg_div .lp__fall-line--delay4 {
-  animation-name: fallLine5;
-}
-
-#svg_div .lp__ring {
-  stroke: hsla(var(--hue),90%,5%,0.1);
-  transition: stroke 0.3s;
-}
-
-#svg_div .lp__worm {
-  animation-name: worm;
-  stroke-dasharray: 43.98 307.87;
-  stroke-dashoffset: -131.94;
-  transform: rotate(-90deg);
-}
-
-/* Dark theme */
-@media (prefers-color-scheme: dark) {
-  #svg_div {
-      --bg: hsl(var(--hue),90%,5%);
-      --fg: hsl(var(--hue),90%,95%);
-  }
-
-  #svg_div .lp__ring {
-      stroke: hsla(var(--hue),90%,95%,0.1);
-  }
-}
-
-
-/* Animtions */
-@keyframes drops {
-from {
-  animation-timing-function: steps(1,end);
-  stroke-dasharray: 0 351.85 0;
-  visibility: hidden;
-}
-25% {
-  animation-timing-function: ease-in-out;
-  stroke-dasharray: 0 351.85 0;
-  visibility: visible;
-}
-26% {
-  stroke-dasharray: 4 343.85 4;
-}
-27% {
-  stroke-dasharray: 8 335.85 8
-}
-28% {
-  stroke-dasharray: 12 327.85 12;
-}
-29% {
-  animation-timing-function: ease-in;
-  stroke-dasharray: 17 317.85 17;
-}
-32% {
-  animation-timing-function: ease-out;
-  stroke-dasharray: 25 301.85 25;
-}
-35%,
-47.5% {
-  animation-timing-function: linear;
-  stroke-dasharray: 22 307.85 22;
-  visibility: visible;
-}
-50% {
-  animation-timing-function: steps(1,end);
-  stroke-dasharray: 0 307.85 43.98;
-  visibility: hidden;
-}
-75% {
-  animation-timing-function: ease-in-out;
-  stroke-dasharray: 0 351.85 0;
-  visibility: visible;
-}
-76% {
-  stroke-dasharray: 4 343.85 4;
-}
-77% {
-  stroke-dasharray: 8 335.85 8
-}
-78% {
-  stroke-dasharray: 12 327.85 12;
-}
-79% {
-  animation-timing-function: ease-in;
-  stroke-dasharray: 17 317.85 17;
-}
-82% {
-  animation-timing-function: ease-out;
-  stroke-dasharray: 25 301.85 25;
-}
-85%,
-97.5% {
-  animation-timing-function: linear;
-  stroke-dasharray: 22 307.85 22;
-  visibility: visible;
-}
-to {
-  stroke-dasharray: 43.98 307.85 0;
-  visibility: hidden;
-}
-}
-@keyframes fallLine1 {
-from,
-15% {
-  stroke-dashoffset: 114;
-}
-25%,
-65% {
-  stroke-dashoffset: 1;
-}
-75%,
-to {
-  stroke-dashoffset: -112;
-}
-}
-@keyframes fallLine2 {
-from,
-16% {
-  stroke-dashoffset: 114;
-}
-26%,
-66% {
-  stroke-dashoffset: 1;
-}
-76%,
-to {
-  stroke-dashoffset: -112;
-}
-}
-@keyframes fallLine3 {
-from,
-17% {
-  stroke-dashoffset: 114;
-}
-27%,
-67% {
-  stroke-dashoffset: 1;
-}
-77%,
-to {
-  stroke-dashoffset: -112;
-}
-}
-@keyframes fallLine4 {
-from,
-18% {
-  stroke-dashoffset: 114;
-}
-28%,
-68% {
-  stroke-dashoffset: 1;
-}
-78%,
-to {
-  stroke-dashoffset: -112;
-}
-}
-@keyframes fallLine5 {
-from,
-19% {
-  stroke-dashoffset: 114;
-}
-29%,
-69% {
-  stroke-dashoffset: 1;
-}
-79%,
-to {
-  stroke-dashoffset: -112;
-}
-}
-@keyframes worm {
-from {
-  animation-timing-function: ease-out;
-  stroke-dasharray: 87.96 307.87;
-  stroke-dashoffset: -131.94;
-}
-25% {
-  animation-timing-function: steps(1);
-  stroke-dasharray: 87.96 307.87;
-  stroke-dashoffset: -307.86;
-}
-25.01% {
-  animation-timing-function: ease-in;
-  stroke-dasharray: 43.98 307.87;
-  stroke-dashoffset: -307.86;
-}
-50% {
-  animation-timing-function: steps(1);
-  stroke-dasharray: 43.98 307.87;
-  stroke-dashoffset: -175.92;
-}
-50.01% {
-  animation-timing-function: ease-out;
-  stroke-dasharray: 87.96 307.87;
-  stroke-dashoffset: -131.94;
-}
-75% {
-  animation-timing-function: steps(1);
-  stroke-dasharray: 87.96 307.87;
-  stroke-dashoffset: 43.98;
-}
-75.01% {
-  animation-timing-function: ease-in;
-  stroke-dasharray: 43.98 307.87;
-  stroke-dashoffset: 0;
-}
-to {
-  stroke-dasharray: 43.98 307.87;
-  stroke-dashoffset: -131.94;
-}
-}
+</html>
