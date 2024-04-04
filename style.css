@@ -1,423 +1,423 @@
 @media screen and (max-width: 769px) {
-  #output_div {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      font-size: 11px;
+    #output_div {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-size: 11px;
+        padding-bottom: 60px;
+    }
+  
+  
+    #myimage {
+        height: 150%;
+        width: 150%;
+    }
+  
   }
-
-
-  #myimage {
-      height: 150%;
-      width: 150%;
+  
+  .row {
+    height: 750px;
   }
-
-}
-
-.row {
-  height: 750px;
-}
-
-#submit_btn {
-  display: none;
-}
-
-#mag_btn {
-  margin-left: 15px;
-}
-
-form {
-  margin-top: 15px;
-}
-
-table {
-  width: 100%;
-  margin-top: 20px;
-  border-collapse: collapse;
-  border: 2px solid whitesmoke;
-  table-layout: auto;
-  overflow-x: auto;
-}
-
-th,
-td {
-  padding: 2px;
-  border: 1px solid #ffffff;
-  text-align: center;
-}
-
-.img-magnifier-container {
-  border: 4px solid whitesmoke;
-  text-align: center;
-  height: 70vh;
-  width: 80%;
-  font: 16px/26px Georgia, Garamond, Serif;
-  overflow: auto;
-}
-
-th {
-  background-color: #21c4d3;
-  text-align: center;
-  padding-left: 20px;
-  padding-right: 20px;
-}
-
-@media screen and (min-width: 769px) {
+  
+  #submit_btn {
+    display: none;
+  }
+  
+  #mag_btn {
+    margin-left: 15px;
+  }
+  
+  form {
+    margin-top: 15px;
+  }
+  
+  table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+    border: 2px solid whitesmoke;
+    table-layout: auto;
+    overflow-x: auto;
+  }
+  
+  th,
+  td {
+    padding: 2px;
+    border: 1px solid #ffffff;
+    text-align: center;
+  }
+  
   .img-magnifier-container {
-      position: relative;
+    border: 4px solid whitesmoke;
+    text-align: center;
+    height: 70vh;
+    width: 80%;
+    font: 16px/26px Georgia, Garamond, Serif;
+    overflow: auto;
   }
-
-  .img-magnifier-glass {
-      position: absolute;
-      border: 3px solid #000;
-      cursor: none;
-      width: 250px;
-      height: 150px;
+  
+  th {
+    background-color: #21c4d3;
+    text-align: center;
+    padding-left: 20px;
+    padding-right: 20px;
   }
-
-
-  #ot_text1,
-  #ot_text2,
-  #ot_text3 {
-      padding-top: 1.5em;
-
+  
+  @media screen and (min-width: 769px) {
+    .img-magnifier-container {
+        position: relative;
+    }
+  
+    .img-magnifier-glass {
+        position: absolute;
+        border: 3px solid #000;
+        cursor: none;
+        width: 250px;
+        height: 150px;
+    }
+  
+  
+    #ot_text1,
+    #ot_text2,
+    #ot_text3 {
+        padding-top: 1.5em;
+  
+    }
+  
+    #output_div {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: start;
+        font-size: 17px;
+    }
+  
   }
-
-  #output_div {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: start;
-      font-size: 17px;
+  
+  .button-container {
+    display: inline-block;
+  
   }
-
-}
-
-.button-container {
-  display: inline-block;
-  padding-bottom: 30px;
-
-}
-
-button {
-  border: none;
-  border-radius: 20px;
-  padding: 5px 8px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-body {
-  /* background-color: #282828; */
-
-  background-color: rgb(20,20,23);
-  color: rgb(255, 255, 255);
-}
-
-h1 {
-  margin: 0px;
-  text-align: center;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid whitesmoke;
-}
-
-.third-button,
-.second-button,
-.first-button {
-  border-right: none;
-  color: #fff;
-  background-color: #5bc0de;
-  border-color: #46b8da;
-}
-
-.third-button {
-  padding: 5px 15px;
-}
-
-.toggle-div {
-  display: none;
-  padding: 0px;
-  border-radius: 100px;
-}
-
-.active {
-  background-color: #000;
-  color: lightblue;
-}
-
-*{
-  color: white;
-}
-
-#svg_div {
-  --hue: 223;
-  --bg: hsl(var(--hue),90%,95%);
-  --fg: hsl(var(--hue),90%,5%);
-  background-color: black;
-  font-size: calc(16px + (24 - 16) * (100vw - 320px) / (1280 - 320px));
-  width: 100%;
-  height: 100vh;
-  display: none;
-  place-items: center;
-  transition: background-color 0.3s;
-}
-
-#svg_div main {
-  padding: 1.5em 0;
-}
-
-#svg_div .lp {
-  width: 8em;
-  height: 8em;
-}
-
-#svg_div .lp__drops,
-#svg_div .lp__fall-line,
-#svg_div .lp__worm {
-  animation-duration: 4s;
-  animation-iteration-count: infinite;
-  transform-origin: 64px 64px;
-}
-
-#svg_div .lp__drops {
-  animation-name: drops;
-  animation-timing-function: ease-in-out;
-  stroke-dasharray: 22 307.85 22;
-  visibility: hidden;
-  transform: rotate(90deg);
-}
-
-#svg_div .lp__fall-line {
-  animation-name: fallLine1;
-  animation-timing-function: ease-in;
-  stroke-dasharray: 1 112;
-  stroke-dashoffset: 114;
-}
-
-#svg_div .lp__fall-line--delay1 {
-  animation-name: fallLine2;
-}
-
-#svg_div .lp__fall-line--delay2 {
-  animation-name: fallLine3;
-}
-
-#svg_div .lp__fall-line--delay3 {
-  animation-name: fallLine4;
-}
-
-#svg_div .lp__fall-line--delay4 {
-  animation-name: fallLine5;
-}
-
-#svg_div .lp__ring {
-  stroke: hsla(var(--hue),90%,5%,0.1);
-  transition: stroke 0.3s;
-}
-
-#svg_div .lp__worm {
-  animation-name: worm;
-  stroke-dasharray: 43.98 307.87;
-  stroke-dashoffset: -131.94;
-  transform: rotate(-90deg);
-}
-
-/* Dark theme */
-@media (prefers-color-scheme: dark) {
+  
+  button {
+    border: none;
+    border-radius: 20px;
+    padding: 5px 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  body {
+    /* background-color: #282828; */
+  
+    background-color: rgb(20,20,23);
+    color: rgb(255, 255, 255);
+  }
+  
+  h1 {
+    margin: 0px;
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid whitesmoke;
+  }
+  
+  .third-button,
+  .second-button,
+  .first-button {
+    border-right: none;
+    color: #fff;
+    background-color: #5bc0de;
+    border-color: #46b8da;
+  }
+  
+  .third-button {
+    padding: 5px 15px;
+  }
+  
+  .toggle-div {
+    display: none;
+    padding: 0px;
+    border-radius: 100px;
+  }
+  
+  .active {
+    background-color: #000;
+    color: lightblue;
+  }
+  
+  *{
+    color: white;
+  }
+  
   #svg_div {
-      --bg: hsl(var(--hue),90%,5%);
-      --fg: hsl(var(--hue),90%,95%);
+    --hue: 223;
+    --bg: hsl(var(--hue),90%,95%);
+    --fg: hsl(var(--hue),90%,5%);
+    background-color: black;
+    font-size: calc(16px + (24 - 16) * (100vw - 320px) / (1280 - 320px));
+    width: 100%;
+    height: 100vh;
+    /* display: none; */
+    place-items: center;
+    transition: background-color 0.3s;
   }
-
+  
+  #svg_div main {
+    padding: 1.5em 0;
+  }
+  
+  #svg_div .lp {
+    width: 8em;
+    height: 8em;
+  }
+  
+  #svg_div .lp__drops,
+  #svg_div .lp__fall-line,
+  #svg_div .lp__worm {
+    animation-duration: 4s;
+    animation-iteration-count: infinite;
+    transform-origin: 64px 64px;
+  }
+  
+  #svg_div .lp__drops {
+    animation-name: drops;
+    animation-timing-function: ease-in-out;
+    stroke-dasharray: 22 307.85 22;
+    visibility: hidden;
+    transform: rotate(90deg);
+  }
+  
+  #svg_div .lp__fall-line {
+    animation-name: fallLine1;
+    animation-timing-function: ease-in;
+    stroke-dasharray: 1 112;
+    stroke-dashoffset: 114;
+  }
+  
+  #svg_div .lp__fall-line--delay1 {
+    animation-name: fallLine2;
+  }
+  
+  #svg_div .lp__fall-line--delay2 {
+    animation-name: fallLine3;
+  }
+  
+  #svg_div .lp__fall-line--delay3 {
+    animation-name: fallLine4;
+  }
+  
+  #svg_div .lp__fall-line--delay4 {
+    animation-name: fallLine5;
+  }
+  
   #svg_div .lp__ring {
-      stroke: hsla(var(--hue),90%,95%,0.1);
+    stroke: hsla(var(--hue),90%,5%,0.1);
+    transition: stroke 0.3s;
   }
-}
-
-
-/* Animtions */
-@keyframes drops {
-from {
-  animation-timing-function: steps(1,end);
-  stroke-dasharray: 0 351.85 0;
-  visibility: hidden;
-}
-25% {
-  animation-timing-function: ease-in-out;
-  stroke-dasharray: 0 351.85 0;
-  visibility: visible;
-}
-26% {
-  stroke-dasharray: 4 343.85 4;
-}
-27% {
-  stroke-dasharray: 8 335.85 8
-}
-28% {
-  stroke-dasharray: 12 327.85 12;
-}
-29% {
-  animation-timing-function: ease-in;
-  stroke-dasharray: 17 317.85 17;
-}
-32% {
-  animation-timing-function: ease-out;
-  stroke-dasharray: 25 301.85 25;
-}
-35%,
-47.5% {
-  animation-timing-function: linear;
-  stroke-dasharray: 22 307.85 22;
-  visibility: visible;
-}
-50% {
-  animation-timing-function: steps(1,end);
-  stroke-dasharray: 0 307.85 43.98;
-  visibility: hidden;
-}
-75% {
-  animation-timing-function: ease-in-out;
-  stroke-dasharray: 0 351.85 0;
-  visibility: visible;
-}
-76% {
-  stroke-dasharray: 4 343.85 4;
-}
-77% {
-  stroke-dasharray: 8 335.85 8
-}
-78% {
-  stroke-dasharray: 12 327.85 12;
-}
-79% {
-  animation-timing-function: ease-in;
-  stroke-dasharray: 17 317.85 17;
-}
-82% {
-  animation-timing-function: ease-out;
-  stroke-dasharray: 25 301.85 25;
-}
-85%,
-97.5% {
-  animation-timing-function: linear;
-  stroke-dasharray: 22 307.85 22;
-  visibility: visible;
-}
-to {
-  stroke-dasharray: 43.98 307.85 0;
-  visibility: hidden;
-}
-}
-@keyframes fallLine1 {
-from,
-15% {
-  stroke-dashoffset: 114;
-}
-25%,
-65% {
-  stroke-dashoffset: 1;
-}
-75%,
-to {
-  stroke-dashoffset: -112;
-}
-}
-@keyframes fallLine2 {
-from,
-16% {
-  stroke-dashoffset: 114;
-}
-26%,
-66% {
-  stroke-dashoffset: 1;
-}
-76%,
-to {
-  stroke-dashoffset: -112;
-}
-}
-@keyframes fallLine3 {
-from,
-17% {
-  stroke-dashoffset: 114;
-}
-27%,
-67% {
-  stroke-dashoffset: 1;
-}
-77%,
-to {
-  stroke-dashoffset: -112;
-}
-}
-@keyframes fallLine4 {
-from,
-18% {
-  stroke-dashoffset: 114;
-}
-28%,
-68% {
-  stroke-dashoffset: 1;
-}
-78%,
-to {
-  stroke-dashoffset: -112;
-}
-}
-@keyframes fallLine5 {
-from,
-19% {
-  stroke-dashoffset: 114;
-}
-29%,
-69% {
-  stroke-dashoffset: 1;
-}
-79%,
-to {
-  stroke-dashoffset: -112;
-}
-}
-@keyframes worm {
-from {
-  animation-timing-function: ease-out;
-  stroke-dasharray: 87.96 307.87;
-  stroke-dashoffset: -131.94;
-}
-25% {
-  animation-timing-function: steps(1);
-  stroke-dasharray: 87.96 307.87;
-  stroke-dashoffset: -307.86;
-}
-25.01% {
-  animation-timing-function: ease-in;
-  stroke-dasharray: 43.98 307.87;
-  stroke-dashoffset: -307.86;
-}
-50% {
-  animation-timing-function: steps(1);
-  stroke-dasharray: 43.98 307.87;
-  stroke-dashoffset: -175.92;
-}
-50.01% {
-  animation-timing-function: ease-out;
-  stroke-dasharray: 87.96 307.87;
-  stroke-dashoffset: -131.94;
-}
-75% {
-  animation-timing-function: steps(1);
-  stroke-dasharray: 87.96 307.87;
-  stroke-dashoffset: 43.98;
-}
-75.01% {
-  animation-timing-function: ease-in;
-  stroke-dasharray: 43.98 307.87;
-  stroke-dashoffset: 0;
-}
-to {
-  stroke-dasharray: 43.98 307.87;
-  stroke-dashoffset: -131.94;
-}
-}
+  
+  #svg_div .lp__worm {
+    animation-name: worm;
+    stroke-dasharray: 43.98 307.87;
+    stroke-dashoffset: -131.94;
+    transform: rotate(-90deg);
+  }
+  
+  /* Dark theme */
+  @media (prefers-color-scheme: dark) {
+    #svg_div {
+        --bg: hsl(var(--hue),90%,5%);
+        --fg: hsl(var(--hue),90%,95%);
+    }
+  
+    #svg_div .lp__ring {
+        stroke: hsla(var(--hue),90%,95%,0.1);
+    }
+  }
+  
+  
+  /* Animtions */
+  @keyframes drops {
+  from {
+    animation-timing-function: steps(1,end);
+    stroke-dasharray: 0 351.85 0;
+    visibility: hidden;
+  }
+  25% {
+    animation-timing-function: ease-in-out;
+    stroke-dasharray: 0 351.85 0;
+    visibility: visible;
+  }
+  26% {
+    stroke-dasharray: 4 343.85 4;
+  }
+  27% {
+    stroke-dasharray: 8 335.85 8
+  }
+  28% {
+    stroke-dasharray: 12 327.85 12;
+  }
+  29% {
+    animation-timing-function: ease-in;
+    stroke-dasharray: 17 317.85 17;
+  }
+  32% {
+    animation-timing-function: ease-out;
+    stroke-dasharray: 25 301.85 25;
+  }
+  35%,
+  47.5% {
+    animation-timing-function: linear;
+    stroke-dasharray: 22 307.85 22;
+    visibility: visible;
+  }
+  50% {
+    animation-timing-function: steps(1,end);
+    stroke-dasharray: 0 307.85 43.98;
+    visibility: hidden;
+  }
+  75% {
+    animation-timing-function: ease-in-out;
+    stroke-dasharray: 0 351.85 0;
+    visibility: visible;
+  }
+  76% {
+    stroke-dasharray: 4 343.85 4;
+  }
+  77% {
+    stroke-dasharray: 8 335.85 8
+  }
+  78% {
+    stroke-dasharray: 12 327.85 12;
+  }
+  79% {
+    animation-timing-function: ease-in;
+    stroke-dasharray: 17 317.85 17;
+  }
+  82% {
+    animation-timing-function: ease-out;
+    stroke-dasharray: 25 301.85 25;
+  }
+  85%,
+  97.5% {
+    animation-timing-function: linear;
+    stroke-dasharray: 22 307.85 22;
+    visibility: visible;
+  }
+  to {
+    stroke-dasharray: 43.98 307.85 0;
+    visibility: hidden;
+  }
+  }
+  @keyframes fallLine1 {
+  from,
+  15% {
+    stroke-dashoffset: 114;
+  }
+  25%,
+  65% {
+    stroke-dashoffset: 1;
+  }
+  75%,
+  to {
+    stroke-dashoffset: -112;
+  }
+  }
+  @keyframes fallLine2 {
+  from,
+  16% {
+    stroke-dashoffset: 114;
+  }
+  26%,
+  66% {
+    stroke-dashoffset: 1;
+  }
+  76%,
+  to {
+    stroke-dashoffset: -112;
+  }
+  }
+  @keyframes fallLine3 {
+  from,
+  17% {
+    stroke-dashoffset: 114;
+  }
+  27%,
+  67% {
+    stroke-dashoffset: 1;
+  }
+  77%,
+  to {
+    stroke-dashoffset: -112;
+  }
+  }
+  @keyframes fallLine4 {
+  from,
+  18% {
+    stroke-dashoffset: 114;
+  }
+  28%,
+  68% {
+    stroke-dashoffset: 1;
+  }
+  78%,
+  to {
+    stroke-dashoffset: -112;
+  }
+  }
+  @keyframes fallLine5 {
+  from,
+  19% {
+    stroke-dashoffset: 114;
+  }
+  29%,
+  69% {
+    stroke-dashoffset: 1;
+  }
+  79%,
+  to {
+    stroke-dashoffset: -112;
+  }
+  }
+  @keyframes worm {
+  from {
+    animation-timing-function: ease-out;
+    stroke-dasharray: 87.96 307.87;
+    stroke-dashoffset: -131.94;
+  }
+  25% {
+    animation-timing-function: steps(1);
+    stroke-dasharray: 87.96 307.87;
+    stroke-dashoffset: -307.86;
+  }
+  25.01% {
+    animation-timing-function: ease-in;
+    stroke-dasharray: 43.98 307.87;
+    stroke-dashoffset: -307.86;
+  }
+  50% {
+    animation-timing-function: steps(1);
+    stroke-dasharray: 43.98 307.87;
+    stroke-dashoffset: -175.92;
+  }
+  50.01% {
+    animation-timing-function: ease-out;
+    stroke-dasharray: 87.96 307.87;
+    stroke-dashoffset: -131.94;
+  }
+  75% {
+    animation-timing-function: steps(1);
+    stroke-dasharray: 87.96 307.87;
+    stroke-dashoffset: 43.98;
+  }
+  75.01% {
+    animation-timing-function: ease-in;
+    stroke-dasharray: 43.98 307.87;
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dasharray: 43.98 307.87;
+    stroke-dashoffset: -131.94;
+  }
+  }
