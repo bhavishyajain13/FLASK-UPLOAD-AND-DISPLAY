@@ -1,3 +1,35 @@
+// Function to swap the order of two divs
+function swapDivOrder() {
+    // Get references to the divs
+    var firstDiv = document.getElementById("firstDiv");
+    var secondDiv = document.getElementById("secondDiv");
+
+    // Get reference to the parent container
+    var container = document.getElementById("container");
+
+    // Remove the divs from the DOM temporarily
+    container.removeChild(firstDiv);
+    container.removeChild(secondDiv);
+
+    // Reinsert the divs in the reversed order
+    container.appendChild(secondDiv);
+    container.appendChild(firstDiv);
+}
+
+// Check window size on load and resize
+function checkWindowSize() {
+    if (window.innerWidth <= 768) {
+        // Call the function to swap div order if window size is 768px or less
+        swapDivOrder();
+    }
+}
+
+// Add event listeners for window resize
+window.addEventListener('load', checkWindowSize);
+window.addEventListener('resize', checkWindowSize);
+
+
+
 @media screen and (max-width: 769px) {
     #output_div {
         display: flex;
