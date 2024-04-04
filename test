@@ -1,64 +1,189 @@
-from flask import Flask, flash, request, redirect, url_for, render_template
-import urllib.request
-import os, webbrowser,sc1,json,time
-from flask_ngrok import run_with_ngrok
-from werkzeug.utils import secure_filename
- 
-class CustomFlask(Flask):
-    def url_for(self,endpoint, **values):
-        url = super().url_for(endpoint,**values)
-        print(url)
-        return '/ocr_sip'+url
+<!DOCTYPE html>
+<html>
 
-app = CustomFlask(__name__)
-url_prefix='/ocr_sip'
-UPLOAD_FOLDER = 'static/uploads/'
- 
-app.secret_key = "secret key"
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
- 
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
- 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+<head>
+    <meta name="viewport" content="initial-scale=1.0">
+    <title>Python Flask Upload and display image</title>
+    <!-- <base href="/ocr_sip/"> -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='/mystyle.css') }}" />
+    <script src="{{ url_for('static', filename='/magnifier.js') }}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+</head>
 
-# VTJ8RCP3@747884
- 
-@app.route('/')
-def home():
-    return render_template('index.html')
- 
-@app.route('/', methods=['GET','POST'])
-def upload_image():
-    if 'file' not in request.files:
-        flash('No file part')
-        return redirect(request.url)
-    file = request.files['file']
-    if file.filename == '':
-        flash('No image selected for uploading')
-        return redirect(request.url)
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], "temp.jpg"))
-        #print('upload_image filename: ' + filename)
-        time.sleep(2)
-        z=sc1.entry_point3(filename)
-        # z=""
-        # z=["VALID", "INVALID"]
-        # print("zzzzzzz\n\n\n\n\n",z)
-        flash('Image successfully uploaded and displayed below')
-        return render_template('index.html', filename=filename,inp=z)
-    else:
-        flash('Allowed image types are - png, jpg, jpeg, gif')
-        return redirect(request.url)
- 
-@app.route('/display/<filename>')
-def display_image(filename):
-    #print('display_image filename: ' + filename)
-    return redirect(url_for('static', filename='uploads/' + filename), code=301)
+<body style="background-color: #282828;">
+    <h1>SIP Form Validation</h1>
 
-if __name__ == "__main__":
-    # app.run(debug=True)
-    sc1.initalize_api() 
-    app.run(host='0.0.0.0', port=3000, debug=True)
+    <div class="row">
+        <div class="col-md-7"
+            style="display: flex; flex-direction:column ; justify-content: center; align-items: center;">
+            <h2>Select a file to upload</h2>
+            <p>
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+            <ul>
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% endwith %}
+            </p>
+            {% if filename %}
+            <div class="img-magnifier-container">
+                <img id="myimage" src="{{ url_for('display_image', filename=filename) }}">
+            </div>
+            {% endif %}
+            <form id="upload_form" method="post" action="" enctype="multipart/form-data">
+                <p style="margin-top: 20px;">
+                <input type="file" name="file" value="file" id="file" class="hidden" autocomplete="off" required>
+                <label for="file" class="btn btn-info"> Upload</label>
+                <input size="10em" type="submit" id="submit_btn" value="Submit" class="btn btn-info">
+                <input size="10em" type="submit" id="mag_btn" value="Magnifier" onclick="try1()" class="btn btn-info">
+                <p style="text-align: center;">
+                </p>
+            </form>
+
+        </div>
+        <div class="col-md-4" id="output_div">
+            <h2>Output</h2>
+            <div class="button-container">
+                <button id="button1" class="first-button" onclick="toggleDiv(1)">Valid</button>
+                <button id="button2" class="second-button" onclick="toggleDiv(2)">Invalid</button>
+                <button id="button3" class="third-button" onclick="toggleDiv(3)">All</button>
+            </div>
+
+            <div class="toggle-div" id="ot_text1">
+                <div style="font-size: 1em;">
+                    <table id="myTable">
+                        <thead>
+                            <tr>
+                                <th>Field Name</th>
+                                <th>Cases</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in inp %}
+                                {% if "VALID" in item.upper() and "INVALID" not in item.upper() %}
+                                    <tr>
+                                        <td>{{ item.split(' - ')[0] }}</td>
+                                        <td>{{ item.split(' - ')[1].split(' (')[0] }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="toggle-div" id="ot_text2">
+                <div style="font-size: 1em;">
+                    <table id="myTable">
+                        <thead>
+                            <tr>
+                                <th>Field Name</th>
+                                <th>Cases</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in inp %}
+                                {% if "INVALID" in item.upper() %}
+                                    <tr>
+                                        <td>{{ item.split(' - ')[0] }}</td>
+                                        <td>{{ item.split(' - ')[1].split(' (')[0] }}</td>
+                                        <td>{{ item.split(' - ')[1].split(' (')[1][:-1] if '(' in item else '' }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="toggle-div" id="ot_text3">
+                <div style="font-size: 1em;">
+                    <table id="myTable">
+                        <thead>
+                            <tr>
+                                <th>Field Name</th>
+                                <th>Cases</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in inp %}
+                                {% if "INVALID" in item.upper() %}
+                                    <tr>
+                                        <td>{{ item.split(' - ')[0] }}</td>
+                                        <td>{{ item.split(' - ')[1].split(' (')[0] }}</td>
+                                        <td>{{ item.split(' - ')[1].split(' (')[1][:-1] if '(' in item else '' }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                            {% for item in inp %}
+                                {% if "VALID" in item.upper() and "INVALID" not in item.upper() %}
+                                    <tr>
+                                        <td>{{ item.split(' - ')[0] }}</td>
+                                        <td>{{ item.split(' - ')[1].split(' (')[0] }}</td>
+                                        <td></td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <br><br>
+            <!-- <table id="myTable">
+                <thead>
+                    <tr>
+                        <th>Field Name</th>
+                        <th>Cases</th>
+                        <th>Reasons</th>
+                    </tr>
+                </thead>
+                <tbody>
+                   Rows will be inserted dynamically here
+                </tbody>
+            </table>  -->
+        </div>
+    </div>
+    <script>
+        let flag = true;
+        function try1() {
+            if (flag) {
+                magnify("myimage", 3);
+                flag = false;
+            } else {
+                let glass = document.querySelector(".img-magnifier-glass");
+                glass.parentElement.removeChild(glass);
+                flag = true;
+            }
+        }
+        document.getElementById("file").onchange = function () {
+            document.getElementById("upload_form").submit()
+        }
+        // Function to generate rows dynamically
+        // function generateRows(numRows) {
+        //     var tableBody = document.querySelector("#myTable tbody");
+        //     tableBody.innerHTML = ""; // Clear existing rows
+
+        //     for (var i = 0; i < numRows; i++) {
+        //         var row = "<tr>";
+        //         for (var j = 0; j < 3; j++) {
+        //             row += "<td>Row " + (i + 1) + ", Col " + (j + 1) + "</td>";
+        //         }
+        //         row += "</tr>";
+        //         tableBody.innerHTML += row;
+        //     }
+        // }
+
+        // // Call the function with the desired number of rows
+        // generateRows(5); // Change the number of rows as needed
+    </script>
+
+</body>
+
+</html>
