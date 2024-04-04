@@ -66,18 +66,99 @@ th {
   text-align: center;
 }
 
-table{
-  width: 100%;
-  table-layout: auto;
-  border-collapse: collapse;
-  overflow: auto;
+@media only screen and (max-width: 600px) {
+
+  th,
+  td {
+      width: 100%;
+      display: block;
+  }
+
+  th {
+      text-align: center;
+  }
 }
 
-th,td{
-  padding: 1px;
-  text-align: center;
-  border-bottom: 3px solid white ;
+@media screen and (min-width: 769px) {
+  .img-magnifier-container {
+      position: relative;
+  }
+
+  .img-magnifier-glass {
+      position: absolute;
+      border: 3px solid #000;
+      cursor: none;
+      width: 250px;
+      height: 150px;
+  }
+
+
+  #ot_text1,
+  #ot_text2,
+  #ot_text3 {
+      padding-top: 1.5em;
+
+  }
+
+  #output_div {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: start;
+      font-size: 17px;
+  }
+
 }
+
+.button-container {
+  display: inline-block;
+}
+
+button {
+  border: none;
+  border-radius: 20px;
+  padding: 5px 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+body {
+  background-color: #282828;
+  color: rgb(255, 255, 255);
+}
+
+h1 {
+  margin: 0px;
+  text-align: center;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid whitesmoke;
+}
+
+.third-button,
+.second-button,
+.first-button {
+  border-right: none;
+  color: #fff;
+  background-color: #5bc0de;
+  border-color: #46b8da;
+}
+
+.third-button {
+  padding: 5px 15px;
+}
+
+.toggle-div {
+  display: none;
+  padding: 0px;
+  border-radius: 100px;
+}
+
+.active {
+  background-color: #000;
+  color: lightblue;
+}
+
 
 #svg_div {
   --hue: 223;
