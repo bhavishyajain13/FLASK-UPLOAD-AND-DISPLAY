@@ -1,6 +1,21 @@
- <main>
-	<link rel="stylesheet" href="style.css">
-	<svg class="lp" viewBox="0 0 128 128" width="128px" height="128px">
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="initial-scale=1.0">
+    <title>Python Flask Upload and display image</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='mystyle.css') }}" />
+    <script src="{{ url_for('static', filename='/magnifier.js') }}"></script>
+</head>
+
+<body>
+    <h1 >SIP Form Validation</h1>
+    
+    <div id="svg_div">
+		<svg class="lp" viewBox="0 0 128 128" width="128px"   height="128px">
 		<defs>
 			<linearGradient id="grad1" x1="0" y1="0" x2="0" y2="1">
 				<stop offset="0%" stop-color="#000" />
@@ -12,7 +27,7 @@
 		</defs>
 		<g fill="none" stroke-linecap="round" stroke-width="16">
 			<circle class="lp__ring" r="56" cx="64" cy="64" stroke="#ddd" />
-			<g stroke="hsl(183,90%,40%)">
+			<g stroke="hsl(183,10%,40%)">
 				<polyline class="lp__fall-line" points="64,8 64,120" />
 				<polyline class="lp__fall-line lp__fall-line--delay1" points="64,8 64,120" />
 				<polyline class="lp__fall-line lp__fall-line--delay2" points="64,8 64,120" />
@@ -31,5 +46,185 @@
 				<circle class="lp__worm" r="56" cx="64" cy="64" transform="rotate(-90,64,64)" />
 			</g>
 		</g>
-	</svg>
-</main>
+		</svg>
+	</div>
+
+    <div id="inp_out_window" style="display: block;" class="row">
+        <div class="col-md-7"
+            style="display: flex; flex-direction:column ; justify-content: center; align-items: center;">
+            <h2>Select a file to upload</h2>
+            <p>
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+            <ul>
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% endwith %}
+            </p>
+            
+            {% if filename %}
+            <div class="img-magnifier-container">
+                <img id="myimage" src="{{ url_for('display_image', filename=filename) }}">
+            </div>
+            {% endif %}
+            <form id="upload_form" method="post" action="" enctype="multipart/form-data">
+                <p style="margin-top: 20px;">
+                <input type="file" name="file" value="file" id="file" class="hidden" autocomplete="off" required>
+                <label for="file" class="btn btn-info"> Upload</label>
+                <input size="10em" type="button" id="submit_btn" value="Submit" class="btn btn-info">
+                <input size="10em" type="button" id="mag_btn" value="Magnifier" onclick="try1()" class="btn btn-info">
+                <p style="text-align: center;">
+                </p>
+            </form>
+
+        </div>
+        
+        <div class="col-md-4" id="output_div">
+            <h2>Output</h2>
+            <div class="button-container">
+                <button id="button1" class="first-button" onclick="toggleDiv(1)">Valid</button>
+                <button id="button2" class="second-button" onclick="toggleDiv(2)">Invalid</button>
+                <button id="button3" class="third-button" onclick="toggleDiv(3)">All</button>
+            </div>
+
+            <div class="toggle-div" id="ot_text1">
+                <div style="font-size: 1em;">
+                    <table id="myTable">
+                        <thead>
+                            <tr>
+                                <th>Field Name</th>
+                                <th>Cases</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in inp %}
+                                {% if "VALID" in item.upper() and "INVALID" not in item.upper() %}
+                                    <tr>
+                                        <td>{{ item.split(' - ')[0] }}</td>
+                                        <td>{{ item.split(' - ')[1].split(' (')[0] }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="toggle-div" id="ot_text2">
+                <div style="font-size: 1em;">
+                    <table id="myTable">
+                        <thead>
+                            <tr>
+                                <th>Field Name</th>
+                                <th>Cases</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in inp %}
+                                {% if "INVALID" in item.upper() %}
+                                    <tr>
+                                        <td>{{ item.split(' - ')[0] }}</td>
+                                        <td>{{ item.split(' - ')[1].split(' (')[0] }}</td>
+                                        <td>{{ item.split(' - ')[1].split(' (')[1][:-1] if '(' in item else '' }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="toggle-div" id="ot_text3">
+                    <table id="myTable">
+                        <thead>
+                            <tr>
+                                <th>Field Name</th>
+                                <th>Cases</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in inp %}
+                                {% if "INVALID" in item.upper() %}
+                                    <tr>
+                                        <td>{{ item.split(' - ')[0] }}</td>
+                                        <td>{{ item.split(' - ')[1].split(' (')[0] }}</td>
+                                        <td>{{ item.split(' - ')[1].split(' (')[1][:-1] if '(' in item else '' }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                            {% for item in inp %}
+                                {% if "VALID" in item.upper() and "INVALID" not in item.upper() %}
+                                    <tr>
+                                        <td>{{ item.split(' - ')[0] }}</td>
+                                        <td>{{ item.split(' - ')[1].split(' (')[0] }}</td>
+                                        <td></td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+            </div>
+
+        </div>
+    </div>
+    <script>
+        let flag = true;
+        function try1() {
+            if (flag) {
+                magnify("myimage", 3);
+                flag = false;
+            } else {
+                let glass = document.querySelector(".img-magnifier-glass");
+                glass.parentElement.removeChild(glass);
+                flag = true;
+            }
+        }
+        document.getElementById("file").onchange = function () {
+            document.getElementById("svg_div").style.display="grid"
+            document.getElementById("inp_out_window").style.display = "none"
+            document.getElementById("submit_btn").click()
+        }
+
+        function onResponseReceived(){
+            document.getElementById("svg_div").style.display="none"
+            document.getElementById("inp_out_window").style.display = "block"
+        }
+
+        document.getElementById("submit_btn").addEventListener("click", function() {
+            var formData = new FormData(document.getElementById("upload_form")); // Create FormData object from the form
+            
+            var xhr = new XMLHttpRequest(); // Create new XMLHttpRequest object
+            xhr.open("POST", "", true); // Set up the request
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest'); // Set AJAX header
+            
+            // Define a function to handle the response
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    // Request was successful
+                    // Do something with the response, if needed
+                    console.log("yay")
+                    console.log(xhr.responseText)
+                } else {
+                    // Request failed
+                    console.error('Request failed. Status: ' + xhr.status);
+                }
+            };
+            
+            // Define a function to handle errors
+            xhr.onerror = function() {
+                console.error('Request failed');
+            };
+            
+            // Send the request
+            xhr.send(formData);
+        });
+    </script>
+
+</body>
+
+</html>
