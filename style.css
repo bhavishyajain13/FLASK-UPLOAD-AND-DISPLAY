@@ -1,4 +1,4 @@
-
+https://github.com/spmallick/learnopencv/blob/master/Automatic-Document-Scanner/Document_scanning.ipynb
 def vali_smth():
     # Set up the SimpleBlobDetector parameters
     image = cv2.imread("temp_img_store/OTM_CHECK1.jpg")
